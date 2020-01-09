@@ -125,6 +125,14 @@ func (self *ParserBuffer) ExpectUint32() (uint32, error) {
 	return uint32(value), err
 }
 
+func (self *ParserBuffer)StepBack(num int) {
+	if self.curr < num {
+		panic("step back error")
+	}
+
+	self.curr -= num
+}
+
 func (self *ParserBuffer) ExpectUint64() (uint64, error) {
 	val, err := self.ExpectInteger()
 	if err != nil {
