@@ -90,7 +90,6 @@ func (self *Limits) Parse(ps *parser.ParserBuffer) error {
 	return nil
 }
 
-
 type MemoryType struct {
 	Limits Limits
 	Shared bool
@@ -136,7 +135,7 @@ func (self *TableElemType) Parse(ps *parser.ParserBuffer) error {
 
 type TableType struct {
 	Limits Limits
-	Elem TableElemType
+	Elem   TableElemType
 }
 
 func (self *TableType) Parse(ps *parser.ParserBuffer) error {
@@ -149,16 +148,16 @@ func (self *TableType) Parse(ps *parser.ParserBuffer) error {
 }
 
 type FunctionType struct {
-	Params []FuncParam
+	Params  []FuncParam
 	Results []ValType
 }
 
 type FuncParam struct {
-	Id OptionId
+	Id  OptionId
 	Val ValType
 }
 
-func (self *FunctionType)Parse(ps *parser.ParserBuffer) error {
+func (self *FunctionType) Parse(ps *parser.ParserBuffer) error {
 	err := ps.ExpectKeywordMatch("func")
 	if err != nil {
 		return err
@@ -168,71 +167,71 @@ func (self *FunctionType)Parse(ps *parser.ParserBuffer) error {
 }
 
 func matchKeyword(token lexer.Token, kw string) bool {
-	 return token != nil && token.Type() == lexer.KeywordType && token.(lexer.Keyword).Val == kw
+	return token != nil && token.Type() == lexer.KeywordType && token.(lexer.Keyword).Val == kw
 }
 
-func (self *FunctionType)ParseBody(ps *parser.ParserBuffer) error {
+func (self *FunctionType) ParseBody(ps *parser.ParserBuffer) error {
 	for {
 		token := ps.Peek2Token()
 		if !matchKeyword(token, "param") && !matchKeyword(token, "result") {
 			return nil
 		}
-			err := ps.Parens(func (ps *parser.ParserBuffer) error {
-				kw, err := ps.ExpectKeyword()
+		err := ps.Parens(func(ps *parser.ParserBuffer) error {
+			kw, err := ps.ExpectKeyword()
+			if err != nil {
+				return err
+			}
+			switch kw {
+			case "param":
+				if len(self.Results) > 0 {
+					return errors.New("result before parameter")
+				}
+				if ps.Empty() {
+					return nil
+				}
+				var id OptionId
+				id.Parse(ps)
+				more := !id.IsSome()
+				var valType ValType
+				err := valType.Parse(ps)
 				if err != nil {
 					return err
 				}
-				switch kw {
-				case "param":
-					if len(self.Results) > 0 {
-						return errors.New("result before parameter")
-					}
-					if ps.Empty() {
-						return nil
-					}
-					var id OptionId
-					id.Parse(ps)
-					more := !id.IsSome()
+
+				self.Params = append(self.Params, FuncParam{
+					Id:  id,
+					Val: valType,
+				})
+
+				for more && !ps.Empty() {
 					var valType ValType
 					err := valType.Parse(ps)
 					if err != nil {
 						return err
 					}
-
 					self.Params = append(self.Params, FuncParam{
-						Id: id,
-						Val:valType,
+						Id:  id,
+						Val: valType,
 					})
-
-					for more && !ps.Empty() {
-						var valType ValType
-						err := valType.Parse(ps)
-						if err != nil {
-							return err
-						}
-						self.Params = append(self.Params, FuncParam{
-							Id: id,
-							Val:valType,
-						})
-					}
-				case "result":
-					for !ps.Empty() {
-						var valType ValType
-						err := valType.Parse(ps)
-						if err != nil {
-							return err
-						}
-						self.Results = append(self.Results, valType)
-					}
-				default:
-					return fmt.Errorf("invalid func param: %s", kw)
 				}
-				return nil
-			})
-
-			if err != nil {
-				return err
+			case "result":
+				for !ps.Empty() {
+					var valType ValType
+					err := valType.Parse(ps)
+					if err != nil {
+						return err
+					}
+					self.Results = append(self.Results, valType)
+				}
+			default:
+				return fmt.Errorf("invalid func param: %s", kw)
 			}
+			return nil
+		})
+
+		if err != nil {
+			return err
+		}
 	}
 }
 
@@ -241,13 +240,13 @@ type Type struct {
 	Func FunctionType
 }
 
-func (self *Type)Parse(ps *parser.ParserBuffer) error {
+func (self *Type) Parse(ps *parser.ParserBuffer) error {
 	err := ps.ExpectKeywordMatch("type")
 	if err != nil {
 		return err
 	}
 	self.Name.Parse(ps)
-	err = ps.Parens(func (ps *parser.ParserBuffer) error {
+	err = ps.Parens(func(ps *parser.ParserBuffer) error {
 		return self.Func.Parse(ps)
 	})
 
@@ -255,16 +254,16 @@ func (self *Type)Parse(ps *parser.ParserBuffer) error {
 }
 
 type TypeUse struct {
-	Index OptionIndex// Optional
-	Type FunctionType
+	Index OptionIndex // Optional
+	Type  FunctionType
 }
 
-func (self *TypeUse)Parse(ps *parser.ParserBuffer) error {
+func (self *TypeUse) Parse(ps *parser.ParserBuffer) error {
 	self.Index = NoneOptionIndex()
 	token := ps.Peek2Token()
 	if matchKeyword(token, "type") {
 		var ind Index
-		err := ps.Parens(func (ps *parser.ParserBuffer)error {
+		err := ps.Parens(func(ps *parser.ParserBuffer) error {
 			err := ps.ExpectKeywordMatch("type")
 			if err != nil {
 				panic(err)

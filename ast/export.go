@@ -13,8 +13,8 @@ const ExportMemory = iota
 const ExportGlobal = iota
 
 type Export struct {
-	Name string
-	Type ExportType
+	Name  string
+	Type  ExportType
 	Index Index
 }
 
@@ -27,7 +27,7 @@ func (self *Export) Parse(ps *parser.ParserBuffer) error {
 	if err != nil {
 		return err
 	}
-	return ps.Parens(func (ps *parser.ParserBuffer)error {
+	return ps.Parens(func(ps *parser.ParserBuffer) error {
 		kw, err := ps.ExpectKeyword()
 		if err != nil {
 			return err
@@ -50,7 +50,6 @@ func (self *Export) Parse(ps *parser.ParserBuffer) error {
 	})
 }
 
-
 type InlineExport struct {
 	Names []string
 }
@@ -61,7 +60,7 @@ func (self *InlineExport) Parse(ps *parser.ParserBuffer) error {
 		if !matchKeyword(token, "export") {
 			break
 		}
-		err := ps.Parens(func (ps *parser.ParserBuffer)error {
+		err := ps.Parens(func(ps *parser.ParserBuffer) error {
 			err := ps.ExpectKeywordMatch("export")
 			if err != nil {
 				panic(err)
@@ -80,5 +79,3 @@ func (self *InlineExport) Parse(ps *parser.ParserBuffer) error {
 
 	return nil
 }
-
-

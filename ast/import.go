@@ -8,8 +8,8 @@ import (
 type Import struct {
 	Module string
 	Field  string
-	Id   OptionId
-	Item ImportItem
+	Id     OptionId
+	Item   ImportItem
 }
 
 type ImportItem interface {
@@ -38,7 +38,7 @@ type ImportTable struct {
 	Table TableType
 }
 
-func (self ImportTable)ImportType() string { return "table" }
+func (self ImportTable) ImportType() string { return "table" }
 
 func (self *Import) Parse(ps *parser.ParserBuffer) error {
 	err := ps.ExpectKeywordMatch("import")
@@ -68,14 +68,14 @@ func (self *Import) Parse(ps *parser.ParserBuffer) error {
 			if err != nil {
 				return err
 			}
-			self.Item = ImportFunc{TypeUse:typeUse}
+			self.Item = ImportFunc{TypeUse: typeUse}
 		case "table":
 			var table TableType
 			err := table.Parse(ps)
 			if err != nil {
 				return err
 			}
-			self.Item = ImportTable{Table:table}
+			self.Item = ImportTable{Table: table}
 		case "memory":
 			var memory MemoryType
 			err := memory.Parse(ps)

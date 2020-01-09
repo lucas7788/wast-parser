@@ -7,12 +7,12 @@ import (
 )
 
 type Memory struct {
-	Name OptionId
+	Name    OptionId
 	Exports InlineExport
-	Kind MemoryKind
+	Kind    MemoryKind
 }
 
-func (self *Memory)Parse(ps *parser.ParserBuffer) error {
+func (self *Memory) Parse(ps *parser.ParserBuffer) error {
 	err := ps.ExpectKeywordMatch("memory")
 	if err != nil {
 		return err
@@ -29,7 +29,7 @@ func (self *Memory)Parse(ps *parser.ParserBuffer) error {
 	//  *   `(import "a" "b") limits`
 	//  *   `limits`
 	if ps.PeekToken().Type() == lexer.LParenType {
-		return ps.Parens(func (ps *parser.ParserBuffer)error {
+		return ps.Parens(func(ps *parser.ParserBuffer) error {
 			kw, err := ps.ExpectKeyword()
 			if err != nil {
 				return err
@@ -54,7 +54,7 @@ func (self *Memory)Parse(ps *parser.ParserBuffer) error {
 	ps.StepBack(1)
 
 	self.Kind = &MemoryKindNormal{}
-	return  self.Kind.parseMemoryKindBody(ps)
+	return self.Kind.parseMemoryKindBody(ps)
 }
 
 type MemoryKind interface {
@@ -63,11 +63,11 @@ type MemoryKind interface {
 
 type MemoryKindImport struct {
 	Module string
-	Name string
-	Type MemoryType
+	Name   string
+	Type   MemoryType
 }
 
-func (self *MemoryKindImport)parseMemoryKindBody(ps *parser.ParserBuffer) error {
+func (self *MemoryKindImport) parseMemoryKindBody(ps *parser.ParserBuffer) error {
 	mod, err := ps.ExpectString()
 	if err != nil {
 		return err
@@ -86,7 +86,7 @@ type MemoryKindNormal struct {
 	Type MemoryType
 }
 
-func (self *MemoryKindNormal)parseMemoryKindBody(ps *parser.ParserBuffer) error {
+func (self *MemoryKindNormal) parseMemoryKindBody(ps *parser.ParserBuffer) error {
 	return self.Type.Parse(ps)
 }
 
@@ -94,7 +94,6 @@ type MemoryKindInline struct {
 	Val []byte
 }
 
-func (self *MemoryKindInline)parseMemoryKindBody(ps *parser.ParserBuffer) error {
+func (self *MemoryKindInline) parseMemoryKindBody(ps *parser.ParserBuffer) error {
 	panic("todo")
 }
-

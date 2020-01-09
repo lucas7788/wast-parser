@@ -13,7 +13,7 @@ func TestImportGlobal_ImportType(t *testing.T) {
   import "test" "table-10-inf" (global i32)))
 `)
 
-	if err!= nil {
+	if err != nil {
 		fmt.Printf("error: %s", err)
 	}
 

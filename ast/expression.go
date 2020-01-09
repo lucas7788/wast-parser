@@ -11,7 +11,7 @@ type Expression struct {
 	Instrs []Instruction
 }
 
-func (self *Expression) Parse(ps *parser.ParserBuffer)  error {
+func (self *Expression) Parse(ps *parser.ParserBuffer) error {
 	var instrs instructions
 	err := instrs.parseFoldedInstrs(ps)
 	if err != nil {
@@ -22,7 +22,7 @@ func (self *Expression) Parse(ps *parser.ParserBuffer)  error {
 	return nil
 }
 
-func (self *Expression)String() string {
+func (self *Expression) String() string {
 	str := ""
 	for _, inst := range self.Instrs {
 		str += inst.String() + " "
@@ -37,23 +37,23 @@ type Instruction interface {
 	String() string
 }
 
-type Unreachable struct { }
+type Unreachable struct{}
 
 func (self *Unreachable) parseInstrBody(ps *parser.ParserBuffer) error {
 	return nil
 }
 
-func (self *Unreachable)String() string {
+func (self *Unreachable) String() string {
 	return "unreachable"
 }
 
-type Nop struct { }
+type Nop struct{}
 
 func (self *Nop) parseInstrBody(ps *parser.ParserBuffer) error {
 	return nil
 }
 
-func (self *Nop)String() string {
+func (self *Nop) String() string {
 	return "nop"
 }
 
@@ -66,7 +66,7 @@ func (self *End) parseInstrBody(ps *parser.ParserBuffer) error {
 	return nil
 }
 
-func (self *End)String() string {
+func (self *End) String() string {
 	return "end"
 }
 
@@ -77,7 +77,7 @@ func (self *Block) parseInstrBody(ps *parser.ParserBuffer) error {
 	return nil
 }
 
-func (self *Block)String() string {
+func (self *Block) String() string {
 	return "block"
 }
 
@@ -94,7 +94,7 @@ func (self *I32Const) parseInstrBody(ps *parser.ParserBuffer) error {
 	return nil
 }
 
-func (self *I32Const)String() string {
+func (self *I32Const) String() string {
 	return fmt.Sprintf("(i32.const %d)", self.Val)
 }
 
@@ -127,7 +127,7 @@ type instructions struct {
 	Instrs []Instruction
 }
 
-func (self *instructions)parseFoldedInstrs(ps *parser.ParserBuffer) error {
+func (self *instructions) parseFoldedInstrs(ps *parser.ParserBuffer) error {
 	for !ps.Empty() {
 		err := self.parseOneInstr(ps)
 		if err != nil {
@@ -138,7 +138,7 @@ func (self *instructions)parseFoldedInstrs(ps *parser.ParserBuffer) error {
 	return nil
 }
 
-func (self *instructions)parseOneInstr(ps *parser.ParserBuffer) error {
+func (self *instructions) parseOneInstr(ps *parser.ParserBuffer) error {
 	if ps.PeekToken().Type() != lexer.LParenType {
 		instr, err := parseInstr(ps)
 		if err != nil {
@@ -148,14 +148,14 @@ func (self *instructions)parseOneInstr(ps *parser.ParserBuffer) error {
 		return nil
 	}
 
-	return ps.Parens(func (ps *parser.ParserBuffer)error {
+	return ps.Parens(func(ps *parser.ParserBuffer) error {
 		instr, err := parseInstr(ps)
 		if err != nil {
 			return err
 		}
 		switch val := instr.(type) {
 		case *Block: //loop
-			self.Instrs= append(self.Instrs, val)
+			self.Instrs = append(self.Instrs, val)
 
 			err := self.parseFoldedInstrs(ps)
 			if err != nil {
@@ -174,9 +174,3 @@ func (self *instructions)parseOneInstr(ps *parser.ParserBuffer) error {
 		return nil
 	})
 }
-
-
-
-
-
-

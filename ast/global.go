@@ -6,24 +6,26 @@ type Global struct {
 	Name    OptionId
 	Exports InlineExport
 	ValType GlobalValType
-	Kind    GlobalType
+	Kind    GlobalKind
 }
 
-type GlobalType interface {
-	globalType()
+type GlobalKind interface {
+	globalKind()
 }
 
-type implGobalType struct {}
-func (self implGobalType) globalType() {}
+type implGobalKind struct{}
 
-type GlobalTypeImport struct {
-	implGobalType
+func (self implGobalKind) globalKind() {}
+
+type GlobalKindImport struct {
+	implGobalKind
 	Module string
-	Field string
+	Field  string
 }
 
-type GlobalTypeInline struct {
-	Expr string // todo
+type GlobalKindInline struct {
+	implGobalKind
+	Expr Expression
 }
 
 func (self *Global) Parse(ps *parser.ParserBuffer) error {
@@ -40,8 +42,8 @@ func (self *Global) Parse(ps *parser.ParserBuffer) error {
 
 	token := ps.Peek2Token()
 	if matchKeyword(token, "import") {
-		var imp GlobalTypeImport
-		err = ps.Parens(func (ps *parser.ParserBuffer)error {
+		var imp GlobalKindImport
+		err = ps.Parens(func(ps *parser.ParserBuffer) error {
 			err := ps.ExpectKeywordMatch("import")
 			if err != nil {
 				panic(err)
@@ -63,9 +65,14 @@ func (self *Global) Parse(ps *parser.ParserBuffer) error {
 		}
 
 		self.Kind = imp
-		return nil
 	} else {
-		//todo: parse inline export
-		panic("unimplemented")
+		var expr Expression
+		err := expr.Parse(ps)
+		if err != nil {
+			return err
+		}
+		self.Kind = GlobalKindInline{Expr: expr}
 	}
+
+	return nil
 }

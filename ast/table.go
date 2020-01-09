@@ -7,21 +7,22 @@ import (
 )
 
 type Table struct {
-	Name OptionId
+	Name    OptionId
 	Exports InlineExport
-	Kind TableKind
+	Kind    TableKind
 }
 
 type TableKind interface {
 	tableKind()
 }
 
-type implTableKind struct {}
+type implTableKind struct{}
+
 func (self implTableKind) tableKind() {}
 
-func (self *Table)Parse(ps *parser.ParserBuffer) error {
+func (self *Table) Parse(ps *parser.ParserBuffer) error {
 	self.Name.Parse(ps)
-	err :=self.Exports.Parse(ps)
+	err := self.Exports.Parse(ps)
 	if err != nil {
 		return err
 	}
@@ -33,7 +34,7 @@ func (self *Table)Parse(ps *parser.ParserBuffer) error {
 	//  *   `limits`
 	var elemType TableElemType
 	if ps.TryParse(&elemType) == nil {
-		return ps.Parens(func (ps *parser.ParserBuffer)error {
+		return ps.Parens(func(ps *parser.ParserBuffer) error {
 			err := ps.ExpectKeywordMatch("elem")
 			if err != nil {
 				return err
@@ -44,21 +45,21 @@ func (self *Table)Parse(ps *parser.ParserBuffer) error {
 					return err
 				}
 
-				self.Kind = TableKindInline{Elem:elemType, Payload:payload}
+				self.Kind = TableKindInline{Elem: elemType, Payload: payload}
 			} else {
 				payload, err := parseElemPayloadIndices(ps)
 				if err != nil {
 					return err
 				}
 
-				self.Kind = TableKindInline{Elem:elemType, Payload:payload}
+				self.Kind = TableKindInline{Elem: elemType, Payload: payload}
 			}
 
 			return nil
 		})
 	} else if ps.PeekToken().Type() == lexer.LParenType {
 		var module, name string
-		err := ps.Parens(func (ps *parser.ParserBuffer)error {
+		err := ps.Parens(func(ps *parser.ParserBuffer) error {
 			err := ps.ExpectKeywordMatch("import")
 			if err != nil {
 				return err
@@ -77,7 +78,7 @@ func (self *Table)Parse(ps *parser.ParserBuffer) error {
 		if err != nil {
 			return err
 		}
-		imp := TableKindImport {Module:module,Name:name}
+		imp := TableKindImport{Module: module, Name: name}
 
 		err = imp.Type.Parse(ps)
 		if err != nil {
@@ -106,7 +107,7 @@ func parseElemPayloadExprs(ps *parser.ParserBuffer, elemType TableElemType) (Ele
 	var exprs []OptionIndex
 	for !ps.Empty() {
 		var index OptionIndex
-		err := ps.Parens(func (ps *parser.ParserBuffer)error {
+		err := ps.Parens(func(ps *parser.ParserBuffer) error {
 			kw, err := ps.ExpectKeyword()
 			if err != nil {
 				return err
@@ -134,7 +135,7 @@ func parseElemPayloadExprs(ps *parser.ParserBuffer, elemType TableElemType) (Ele
 		exprs = append(exprs, index)
 	}
 
-	return ElemPayloadExprs{Exprs:exprs, Type:elemType}, nil
+	return ElemPayloadExprs{Exprs: exprs, Type: elemType}, nil
 }
 
 func parseElemPayloadIndices(ps *parser.ParserBuffer) (ElemPayload, error) {
@@ -149,7 +150,7 @@ func parseElemPayloadIndices(ps *parser.ParserBuffer) (ElemPayload, error) {
 		indices = append(indices, index)
 	}
 
-	return ElemPayloadIndices{Indices:indices}, nil
+	return ElemPayloadIndices{Indices: indices}, nil
 }
 
 func parseElemPayload(ps *parser.ParserBuffer) (ElemPayload, error) {
@@ -165,20 +166,20 @@ type ElemPayloadIndices struct {
 	Indices []Index
 }
 
-func (self ElemPayloadIndices)implElemPayload() {}
+func (self ElemPayloadIndices) implElemPayload() {}
 
 type ElemPayloadExprs struct {
-	Type TableElemType
+	Type  TableElemType
 	Exprs []OptionIndex
 }
 
-func (self ElemPayloadExprs)implElemPayload() {}
+func (self ElemPayloadExprs) implElemPayload() {}
 
 type TableKindImport struct {
 	implTableKind
 	Module string
-	Name string
-	Type TableType
+	Name   string
+	Type   TableType
 }
 
 type TableKindNormal struct {
@@ -186,12 +187,12 @@ type TableKindNormal struct {
 	Type TableType
 }
 
-func (self *TableKindNormal)parseTableKindBody(ps *parser.ParserBuffer) error {
+func (self *TableKindNormal) parseTableKindBody(ps *parser.ParserBuffer) error {
 	return self.Type.Parse(ps)
 }
 
 type TableKindInline struct {
 	implTableKind
-	Elem TableElemType
+	Elem    TableElemType
 	Payload ElemPayload
 }
