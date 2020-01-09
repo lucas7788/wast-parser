@@ -122,3 +122,20 @@ func (self *Index) Parse(ps *parser.ParserBuffer) error {
 		return nil
 	})
 }
+
+
+type Float32 struct {
+	bits uint32
+}
+
+func (self *Float32) Parse(ps *parser.ParserBuffer) error {
+	panic("todo")
+}
+
+type Float64 struct {
+	bits uint64
+}
+
+func (self *Float64) Parse(ps *parser.ParserBuffer) error {
+	panic("todo")
+}

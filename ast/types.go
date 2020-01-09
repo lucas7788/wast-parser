@@ -259,6 +259,14 @@ type TypeUse struct {
 	Type  FunctionType
 }
 
+func (self *TypeUse) ParseNoNames(ps *parser.ParserBuffer) error {
+	return self.ParseAllowNames(ps, false)
+}
+
+func (self *TypeUse) ParseAllowNames(ps *parser.ParserBuffer, allow_names bool) error {
+	panic("todo")
+}
+
 func (self *TypeUse) Parse(ps *parser.ParserBuffer) error {
 	self.Index = NoneOptionIndex()
 	token := ps.Peek2Token()

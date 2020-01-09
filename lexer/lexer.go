@@ -93,7 +93,7 @@ func (self Keyword) Type() TokenType {
 }
 
 type Reserved struct {
-	val string
+	Val string
 }
 
 func (self Reserved) Type() TokenType {
@@ -101,7 +101,7 @@ func (self Reserved) Type() TokenType {
 }
 
 func (self Reserved) String() string {
-	return fmt.Sprintf("reserved(%s)", self.val)
+	return fmt.Sprintf("reserved(%s)", self.Val)
 }
 
 type Integer struct {
@@ -129,6 +129,15 @@ func (self *Integer)ToUint(bitSize int) (uint64, error) {
 	}
 
 	return strconv.ParseUint(self.Val, base, bitSize)
+}
+
+func (self *Integer)ToInt(bitSize int) (int64, error) {
+	base := 10
+	if self.Hex {
+		base = 16
+	}
+
+	return strconv.ParseInt(self.Val, base, bitSize)
 }
 
 type Float interface {
@@ -422,7 +431,7 @@ func (self *Lexer) ReadToken() (Token, error) {
 	} else if str[0] >= 'a' && str[0] <= 'z' {
 		return Keyword{Val: str}, nil
 	} else {
-		return Reserved{val: str}, nil
+		return Reserved{Val: str}, nil
 	}
 }
 

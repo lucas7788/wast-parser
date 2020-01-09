@@ -1,8 +1,6 @@
 package ast
 
 import (
-	"fmt"
-
 	"github.com/ontio/wast-parser/lexer"
 	"github.com/ontio/wast-parser/parser"
 )
@@ -31,30 +29,9 @@ func (self *Expression) String() string {
 	return str
 }
 
-//todo
 type Instruction interface {
 	parseInstrBody(ps *parser.ParserBuffer) error
 	String() string
-}
-
-type Unreachable struct{}
-
-func (self *Unreachable) parseInstrBody(ps *parser.ParserBuffer) error {
-	return nil
-}
-
-func (self *Unreachable) String() string {
-	return "unreachable"
-}
-
-type Nop struct{}
-
-func (self *Nop) parseInstrBody(ps *parser.ParserBuffer) error {
-	return nil
-}
-
-func (self *Nop) String() string {
-	return "nop"
 }
 
 type End struct {
@@ -79,23 +56,6 @@ func (self *Block) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *Block) String() string {
 	return "block"
-}
-
-type I32Const struct {
-	Val uint32
-}
-
-func (self *I32Const) parseInstrBody(ps *parser.ParserBuffer) error {
-	val, err := ps.ExpectUint32()
-	if err != nil {
-		return err
-	}
-	self.Val = val
-	return nil
-}
-
-func (self *I32Const) String() string {
-	return fmt.Sprintf("(i32.const %d)", self.Val)
 }
 
 func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
@@ -173,4 +133,80 @@ func (self *instructions) parseOneInstr(ps *parser.ParserBuffer) error {
 		}
 		return nil
 	})
+}
+
+type BrTableIndices struct {
+	Labels []Index
+	Default Index
+}
+
+func (self *BrTableIndices) Parse(ps *parser.ParserBuffer) error {
+	var index Index
+	err := index.Parse(ps)
+	if err != nil {
+		return err
+	}
+	self.Labels = append(self.Labels, index)
+	for !ps.Empty() {
+		var index Index
+		err := index.Parse(ps)
+		if err != nil {
+			return err
+		}
+		
+		self.Labels = append(self.Labels, index)
+	}
+	self.Default = self.Labels[len(self.Labels)-1]
+	self.Labels = self.Labels[:len(self.Labels)-1]
+	return nil
+}
+
+type CallIndirectInner struct {
+	Table Index
+	Type TypeUse
+}
+
+func (self *CallIndirectInner) Parse(ps *parser.ParserBuffer) error {
+	var table OptionIndex
+	table.Parse(ps)
+	err := self.Type.ParseNoNames(ps)
+	if err != nil {
+		return err
+	}
+	// Turns out the official test suite at this time thinks table
+	// identifiers comes first but wabt's test suites asserts differently
+	// putting them second. Let's just handle both.
+	if !table.IsSome() {
+		table.Parse(ps)
+	}
+	self.Table = table.ToIndexOr(NewNumIndex(0))
+
+	return nil
+}
+
+type SelectTypes struct {
+	Types []ValType
+}
+
+
+func (self *SelectTypes) Parse(ps *parser.ParserBuffer) error {
+	for matchKeyword(ps.Peek2Token(), "result") {
+		err := ps.Parens(func (ps *parser.ParserBuffer)error {
+			_ = ps.ExpectKeywordMatch("result")
+			for !ps.Empty() {
+				var ty ValType
+				err := ty.Parse(ps)
+				if err != nil {
+					return err
+				}
+				self.Types = append(self.Types, ty)
+			}
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
