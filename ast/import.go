@@ -6,6 +6,7 @@ import (
 )
 
 type Import struct {
+	implModuleField
 	Module string
 	Field  string
 	Id     OptionId

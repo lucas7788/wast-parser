@@ -7,6 +7,7 @@ import (
 )
 
 type Table struct {
+	implModuleField
 	Name    OptionId
 	Exports InlineExport
 	Kind    TableKind

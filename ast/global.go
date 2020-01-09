@@ -3,6 +3,7 @@ package ast
 import "github.com/ontio/wast-parser/parser"
 
 type Global struct {
+	implModuleField
 	Name    OptionId
 	Exports InlineExport
 	ValType GlobalValType

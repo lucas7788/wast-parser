@@ -236,6 +236,7 @@ func (self *FunctionType) ParseBody(ps *parser.ParserBuffer) error {
 }
 
 type Type struct {
+	implModuleField
 	Name OptionId
 	Func FunctionType
 }

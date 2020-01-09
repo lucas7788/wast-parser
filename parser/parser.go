@@ -142,6 +142,11 @@ func (self *ParserBuffer) ExpectUint64() (uint64, error) {
 	return  val.ToUint(64)
 }
 
+func (self *ParserBuffer) PeekUint32() bool {
+	_, err := self.clone().ExpectUint32()
+
+	return err == nil
+}
 
 func (self *ParserBuffer)PeekToken() lexer.Token {
 	if self.curr < len(self.tokens) {

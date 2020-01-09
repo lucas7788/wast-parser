@@ -13,6 +13,7 @@ const ExportMemory = iota
 const ExportGlobal = iota
 
 type Export struct {
+	implModuleField
 	Name  string
 	Type  ExportType
 	Index Index

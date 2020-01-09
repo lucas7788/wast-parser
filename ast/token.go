@@ -21,15 +21,15 @@ func (self *Id) Parse(ps *parser.ParserBuffer) error {
 }
 
 type OptionId struct {
-	name string
+	name Id
 }
 
 func NoneOptionId() OptionId {
-	return OptionId{name: ""}
+	return OptionId{}
 }
 
 func (self *OptionId) IsSome() bool {
-	return self.name != ""
+	return self.name.Name != ""
 }
 
 func (self OptionId) ToId() Id {
@@ -37,18 +37,11 @@ func (self OptionId) ToId() Id {
 		panic("empty option id")
 	}
 
-	return Id{Name: self.name}
+	return self.name
 }
 
 func (self *OptionId) Parse(ps *parser.ParserBuffer) {
-	_ = ps.Step(func(cursor *parser.Cursor) error {
-		id := cursor.Id()
-		if len(id) == 0 {
-			return errors.New("expect an identifier")
-		}
-		self.name = id
-		return nil
-	})
+	_ = ps.TryParse(&self.name)
 }
 
 type Index struct {
@@ -57,9 +50,23 @@ type Index struct {
 	Id    Id
 }
 
+func NewNumIndex(num uint32) Index {
+	return Index{
+		isnum: true,
+		Num:   num,
+	}
+}
+
 type OptionIndex struct {
 	isSome bool
 	index  Index
+}
+
+func (self *OptionIndex) Parse(ps *parser.ParserBuffer) {
+	self.isSome = false
+	if ps.TryParse(&self.index) == nil {
+		self.isSome = true
+	}
 }
 
 func (self *OptionIndex) IsSome() bool {
@@ -82,6 +89,13 @@ func NoneOptionIndex() OptionIndex {
 func (self OptionIndex) ToIndex() Index {
 	if !self.isSome {
 		panic("assert some index")
+	}
+	return self.index
+}
+
+func (self OptionIndex) ToIndexOr(ind Index) Index {
+	if !self.isSome {
+		return ind
 	}
 	return self.index
 }

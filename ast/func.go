@@ -3,6 +3,7 @@ package ast
 import "github.com/ontio/wast-parser/parser"
 
 type Func struct {
+	implModuleField
 	Name    OptionId
 	Exports InlineExport
 	Kind    FuncKind
