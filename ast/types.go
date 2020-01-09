@@ -4,8 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ontio/wast-parser/lexer"
-	"strconv"
-
 	"github.com/ontio/wast-parser/parser"
 )
 
@@ -51,12 +49,12 @@ func (self *ValType) Parse(ps *parser.ParserBuffer) error {
 	return nil
 }
 
-type GlobalType struct {
+type GlobalValType struct {
 	Type    ValType
 	Mutable bool
 }
 
-func (self *GlobalType) Parse(ps *parser.ParserBuffer) error {
+func (self *GlobalValType) Parse(ps *parser.ParserBuffer) error {
 	//todo: parse mutable case
 	err := self.Type.Parse(ps)
 	if err != nil {
@@ -166,15 +164,25 @@ type FuncParam struct {
 	Val ValType
 }
 
-
 func (self *FunctionType)Parse(ps *parser.ParserBuffer) error {
 	err := ps.ExpectKeywordMatch("func")
 	if err != nil {
 		return err
 	}
+
+	return self.ParseBody(ps)
+}
+
+func matchKeyword(token lexer.Token, kw string) bool {
+	 return token != nil && token.Type() == lexer.KeywordType && token.(lexer.Keyword).Val == kw
+}
+
+func (self *FunctionType)ParseBody(ps *parser.ParserBuffer) error {
 	for {
-		token := ps.PeekToken()
-		if token != nil && token.Type() == lexer.LParenType {
+		token := ps.Peek2Token()
+		if !matchKeyword(token, "param") && !matchKeyword(token, "result") {
+			return nil
+		}
 			err := ps.Parens(func (ps *parser.ParserBuffer) error {
 				kw, err := ps.ExpectKeyword()
 				if err != nil {
@@ -185,16 +193,97 @@ func (self *FunctionType)Parse(ps *parser.ParserBuffer) error {
 					if len(self.Results) > 0 {
 						return errors.New("result before parameter")
 					}
+					if ps.Empty() {
+						return nil
+					}
+					var id OptionId
+					id.Parse(ps)
+					more := !id.IsSome()
+					var valType ValType
+					err := valType.Parse(ps)
+					if err != nil {
+						return err
+					}
 
+					self.Params = append(self.Params, FuncParam{
+						Id: id,
+						Val:valType,
+					})
 
+					for more && !ps.Empty() {
+						var valType ValType
+						err := valType.Parse(ps)
+						if err != nil {
+							return err
+						}
+						self.Params = append(self.Params, FuncParam{
+							Id: id,
+							Val:valType,
+						})
+					}
+				case "result":
+					for !ps.Empty() {
+						var valType ValType
+						err := valType.Parse(ps)
+						if err != nil {
+							return err
+						}
+						self.Results = append(self.Results, valType)
+					}
+				default:
+					return fmt.Errorf("invalid func param: %s", kw)
 				}
-
+				return nil
 			})
 
 			if err != nil {
 				return err
 			}
+	}
+}
+
+type Type struct {
+	Name OptionId
+	Func FunctionType
+}
+
+func (self *Type)Parse(ps *parser.ParserBuffer) error {
+	err := ps.ExpectKeywordMatch("type")
+	if err != nil {
+		return err
+	}
+	self.Name.Parse(ps)
+	err = ps.Parens(func (ps *parser.ParserBuffer) error {
+		return self.Func.Parse(ps)
+	})
+
+	return err
+}
+
+type TypeUse struct {
+	Index OptionIndex// Optional
+	Type FunctionType
+}
+
+func (self *TypeUse)Parse(ps *parser.ParserBuffer) error {
+	self.Index = NoneOptionIndex()
+	token := ps.Peek2Token()
+	if matchKeyword(token, "type") {
+		var ind Index
+		err := ps.Parens(func (ps *parser.ParserBuffer)error {
+			err := ps.ExpectKeywordMatch("type")
+			if err != nil {
+				panic(err)
+			}
+			return ind.Parse(ps)
+		})
+
+		if err != nil {
+			return err
 		}
+
+		self.Index = NewOptionIndex(ind)
 	}
 
+	return self.Type.ParseBody(ps)
 }

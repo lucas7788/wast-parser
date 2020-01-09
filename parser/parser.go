@@ -35,6 +35,12 @@ func NewParserBuffer(input string) (*ParserBuffer, error) {
 	return &ParserBuffer{ tokens:tokens, curr:0 }, nil
 }
 
+func (self *ParserBuffer)Empty() bool {
+	token := self.PeekToken()
+
+	return token == nil || token.Type() == lexer.RParenType
+}
+
 func (self *ParserBuffer)Cursor() Cursor {
 	return Cursor{
 		parser:self,
@@ -116,6 +122,15 @@ func (self *ParserBuffer)PeekToken() lexer.Token {
 
 	return nil
 }
+
+func (self *ParserBuffer)Peek2Token() lexer.Token {
+	if self.curr+1 < len(self.tokens) {
+		return self.tokens[self.curr+1]
+	}
+
+	return nil
+}
+
 
 func (self *ParserBuffer)TryGetId() string {
 	cursor := self.Cursor()
