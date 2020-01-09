@@ -148,6 +148,16 @@ func (self *ParserBuffer) PeekUint32() bool {
 	return err == nil
 }
 
+func (self *ParserBuffer)ReadToken() lexer.Token {
+	if self.curr >= len(self.tokens) {
+		return nil
+	}
+
+	token := self.tokens[self.curr]
+	self.curr += 1
+	return token
+}
+
 func (self *ParserBuffer)PeekToken() lexer.Token {
 	if self.curr < len(self.tokens) {
 		return self.tokens[self.curr]

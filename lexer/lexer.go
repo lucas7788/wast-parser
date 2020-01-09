@@ -93,7 +93,7 @@ func (self Keyword) Type() TokenType {
 }
 
 type Reserved struct {
-	val string
+	Val string
 }
 
 func (self Reserved) Type() TokenType {
@@ -101,7 +101,7 @@ func (self Reserved) Type() TokenType {
 }
 
 func (self Reserved) String() string {
-	return fmt.Sprintf("reserved(%s)", self.val)
+	return fmt.Sprintf("reserved(%s)", self.Val)
 }
 
 type Integer struct {
@@ -422,7 +422,7 @@ func (self *Lexer) ReadToken() (Token, error) {
 	} else if str[0] >= 'a' && str[0] <= 'z' {
 		return Keyword{Val: str}, nil
 	} else {
-		return Reserved{val: str}, nil
+		return Reserved{Val: str}, nil
 	}
 }
 
