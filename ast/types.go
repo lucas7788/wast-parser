@@ -72,18 +72,13 @@ type Limits struct {
 }
 
 func (self *Limits) Parse(ps *parser.ParserBuffer) error {
+	min, err := ps.ExpectUint32()
+	if err != nil {
+		return err
+	}
+	self.Min = min
+
 	val, err := ps.ExpectInteger()
-	if err != nil {
-		return err
-	}
-	min, err := val.ToUint(32)
-	if err != nil {
-		return err
-	}
-	self.Min = uint32(min)
-
-
-	val, err = ps.ExpectInteger()
 	if err == nil {
 		max, err := val.ToUint(32)
 		if err != nil {

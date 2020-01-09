@@ -10,14 +10,14 @@ type Global struct {
 }
 
 type GlobalType interface {
-	implGlobalType()
+	globalType()
 }
 
-type implGlobalType struct {}
-func (self implGlobalType) implGlobalType() {}
+type implGobalType struct {}
+func (self implGobalType) globalType() {}
 
 type GlobalTypeImport struct {
-	implGlobalType
+	implGobalType
 	Module string
 	Field string
 }

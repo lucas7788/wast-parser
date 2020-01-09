@@ -115,6 +115,26 @@ func (self *ParserBuffer) ExpectInteger() (lexer.Integer, error) {
 	return val, nil
 }
 
+func (self *ParserBuffer) ExpectUint32() (uint32, error) {
+	val, err := self.ExpectInteger()
+	if err != nil {
+		return 0, err
+	}
+
+	value, err :=  val.ToUint(32)
+	return uint32(value), err
+}
+
+func (self *ParserBuffer) ExpectUint64() (uint64, error) {
+	val, err := self.ExpectInteger()
+	if err != nil {
+		return 0, err
+	}
+
+	return  val.ToUint(64)
+}
+
+
 func (self *ParserBuffer)PeekToken() lexer.Token {
 	if self.curr < len(self.tokens) {
 		return self.tokens[self.curr]
@@ -212,7 +232,7 @@ func (self *Cursor)ExpectRparen() error {
 	if token == nil {
 		return errors.New("expect rparen, got eof")
 	}
-	if t, ok := token.(lexer.LParen); !ok {
+	if t, ok := token.(lexer.RParen); !ok {
 		return fmt.Errorf("expect rparen, got %s", t)
 	}
 

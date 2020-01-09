@@ -24,6 +24,10 @@ type OptionId struct {
 	name string
 }
 
+func NoneOptionId() OptionId {
+	return OptionId{name:""}
+}
+
 func (self *OptionId)IsSome() bool {
 	return self.name != ""
 }

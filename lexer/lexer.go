@@ -10,14 +10,16 @@ import (
 )
 
 type TokenType byte
-const LParenType = TokenType(0)
-const RParenType = iota
-const StringType = iota
-const IntegerType = iota
-const FloatType = iota
-const KeywordType = iota
-const IdType = iota
-const ReservedType = iota
+const (
+	LParenType TokenType = iota
+ RParenType
+StringType
+IntegerType
+FloatType
+KeywordType
+IdType
+ReservedType
+)
 
 
 type Lexer struct {
