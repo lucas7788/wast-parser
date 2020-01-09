@@ -151,6 +151,29 @@ func (self *ParserBuffer)PeekToken() lexer.Token {
 	return nil
 }
 
+func (self *ParserBuffer)clone() *ParserBuffer {
+	return &ParserBuffer{
+		tokens:self.tokens,
+		curr: self.curr,
+	}
+}
+
+func (self *ParserBuffer)PeekParse(value Parse) bool {
+	ps := self.clone()
+	return value.Parse(ps) == nil
+}
+
+func (self *ParserBuffer)TryParse(value Parse) error {
+	ps := self.clone()
+	err := value.Parse(ps)
+	if err != nil {
+		return err
+	}
+
+	self.curr = ps.curr
+	return nil
+}
+
 func (self *ParserBuffer)Peek2Token() lexer.Token {
 	if self.curr+1 < len(self.tokens) {
 		return self.tokens[self.curr+1]

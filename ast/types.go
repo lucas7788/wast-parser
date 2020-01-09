@@ -112,7 +112,6 @@ func (self *MemoryType) Parse(ps *parser.ParserBuffer) error {
 
 type TableElemType struct {
 	ty byte
-
 }
 
 var FuncRef = TableElemType{ty: 0}

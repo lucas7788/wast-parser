@@ -2,6 +2,7 @@ package ast
 
 import (
 	"fmt"
+
 	"github.com/ontio/wast-parser/lexer"
 	"github.com/ontio/wast-parser/parser"
 )
@@ -41,6 +42,7 @@ type Unreachable struct { }
 func (self *Unreachable) parseInstrBody(ps *parser.ParserBuffer) error {
 	return nil
 }
+
 func (self *Unreachable)String() string {
 	return "unreachable"
 }
