@@ -10,14 +10,12 @@ type Id struct {
 }
 
 func (self *Id) Parse(ps *parser.ParserBuffer) error {
-	return ps.Step(func(cursor *parser.Cursor) error {
-		id := cursor.Id()
-		if len(id) == 0 {
-			return errors.New("expect an identifier")
-		}
-		self.Name = id
-		return nil
-	})
+	id := ps.TryGetId()
+	if len(id) == 0 {
+		return errors.New("expect an identifier")
+	}
+	self.Name = id
+	return nil
 }
 
 type OptionId struct {
@@ -101,26 +99,21 @@ func (self OptionIndex) ToIndexOr(ind Index) Index {
 }
 
 func (self *Index) Parse(ps *parser.ParserBuffer) error {
-	return ps.Step(func(cursor *parser.Cursor) error {
-		c2 := cursor.Clone()
-		id := c2.Id()
-		if len(id) != 0 {
-			self.isnum = false
-			self.Id = Id{Name: id}
-		}
-		val, err := cursor.Integer()
-		if err != nil {
-			return err
-		}
-		num, err := val.ToUint(32)
-		if err != nil {
-			return err
-		}
-		self.isnum = true
-		self.Num = uint32(num)
-
+	id := ps.TryGetId()
+	if len(id) != 0 {
+		self.isnum = false
+		self.Id = Id{Name: id}
 		return nil
-	})
+	}
+
+	num, err := ps.ExpectUint32()
+	if err != nil {
+		return err
+	}
+	self.isnum = true
+	self.Num = uint32(num)
+
+	return nil
 }
 
 type Float32 struct {

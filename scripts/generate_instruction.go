@@ -12,14 +12,14 @@ import (
 )
 
 type Instruction struct {
-	Name   string  `json:"name"`
-	Id     string  `json:"id"`
-	Fields []Field `json:"fields"`
+	Name   string
+	Id     []string
+	Fields []Field
 }
 
 type Field struct {
-	Name string `json:"name"`
-	Type string `json:"type"`
+	Name string
+	Type string
 }
 
 func expectKeyword(ps *parser.ParserBuffer) (string, error) {
@@ -43,9 +43,27 @@ func (self *Instruction) Parse(ps *parser.ParserBuffer) error {
 		return err
 	}
 	self.Name = kw
-	self.Id, err = expectKeyword(ps)
-	if err != nil {
-		return err
+	if ps.PeekToken().Type() == lexer.LParenType {
+		err := ps.Parens(func(ps *parser.ParserBuffer) error {
+			for !ps.Empty() {
+				id, err := expectKeyword(ps)
+				if err != nil {
+					return err
+				}
+				self.Id = append(self.Id, id)
+			}
+			return nil
+		})
+
+		if err != nil {
+			return err
+		}
+	} else {
+		id, err := expectKeyword(ps)
+		if err != nil {
+			return err
+		}
+		self.Id = append(self.Id, id)
 	}
 
 	for !ps.Empty() {
@@ -94,7 +112,7 @@ func (self *[Name]) String() string {
 		"Name":      self.Name,
 		"Fields":    self.generateFields(),
 		"parseBody": self.generateParseBody(),
-		"Id":        self.Id,
+		"Id":        self.Id[0],
 	})
 }
 
@@ -125,11 +143,11 @@ func (self Instruction) generateParseBody() string {
 
 func parseGeneral(name string) string {
 	return generate(
-		`err := self.[Id].Parse(ps)
+		`err := self.[Name].Parse(ps)
 	if err != nil {
 		return err
 	}
-`, map[string]interface{}{"Id": name})
+`, map[string]interface{}{"Name": name})
 }
 
 func parseInt(name string, ty string) string {
@@ -137,8 +155,8 @@ func parseInt(name string, ty string) string {
 	if err != nil {
 		return err
 	}
-	self.[Id] = val
-`, map[string]interface{}{"Id": name, "Type": ty})
+	self.[Name] = val
+`, map[string]interface{}{"Name": name, "Type": ty})
 }
 
 func mustParseInstrs(source string) []Instruction {
@@ -164,11 +182,11 @@ func mustParseInstrs(source string) []Instruction {
 func generateParseInstrution(instrs []Instruction) string {
 	var cases []string
 	for _, instr := range instrs {
-		cases = append(cases, generate( ` case "[Id]":
-		inst = &[Name]{}`, map[string]interface{}{"Id": instr.Id, "Name":instr.Name}))
+		cases = append(cases, generate(` case "[Id]":
+		inst = &[Name]{}`, map[string]interface{}{"Id": strings.Join(instr.Id, "\", \""), "Name": instr.Name}))
 	}
 
-return generate(`
+	return generate(`
 func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
 	var inst Instruction
 	kw, err := ps.ExpectKeyword()
@@ -209,11 +227,11 @@ func main() {
 (ReturnCallIndirect return_call_indirect (Impl CallIndirectInner))
 (Drop drop)
 (Select select (SelectTypes SelectTypes))
-;;(LocalGet(ast::Index<'a>) : [0x20] : "local.get" | "get_local",
-;;(LocalSet(ast::Index<'a>) : [0x21] : "local.set" | "set_local",
-;;(LocalTee(ast::Index<'a>) : [0x22] : "local.tee" | "tee_local",
-;;(GlobalGet(ast::Index<'a>) : [0x23] : "global.get" | "get_global",
-;;(GlobalSet(ast::Index<'a>) : [0x24] : "global.set" | "set_global",
+(LocalGet (local.get get_local) (Index Index)) 
+(LocalSet (local.set set_local) (Index Index)) 
+(LocalTee (local.tee tee_local) (Index Index)) 
+(GlobalGet (global.get get_global) (Index Index)) 
+(GlobalSet (global.set set_global) (Index Index)) 
 
 (TableGet table.get (Index Index))
 (TableSet table.set (Index Index))
@@ -243,18 +261,18 @@ func main() {
 ;;(I64Store32(MemArg<4>) i64.store32)
 
 ;; Lots of bulk memory proposal here as well
-;;MemorySize : [0x3f, 0x00] : "memory.size" | "current_memory",
-;;MemoryGrow : [0x40, 0x00] : "memory.grow" | "grow_memory",
+(MemorySize (memory.size current_memory))
+(MemoryGrow (memory.grow grow_memory))
 ;;MemoryInit(MemoryInit<'a>) : [0xfc, 0x08] : "memory.init",
-;;MemoryCopy : [0xfc, 0x0a, 0x00, 0x00] : "memory.copy",
-;;MemoryFill : [0xfc, 0x0b, 0x00] : "memory.fill",
-;;DataDrop(ast::Index<'a>) : [0xfc, 0x09] : "data.drop",
-;;ElemDrop(ast::Index<'a>) : [0xfc, 0x0d] : "elem.drop",
-;;TableInit(TableInit<'a>) : [0xfc, 0x0c] : "table.init",
-;;TableCopy : [0xfc, 0x0e, 0x00, 0x00] : "table.copy",
-;;TableFill(ast::Index<'a>) : [0xfc, 0x11] : "table.fill",
-;;TableSize(ast::Index<'a>) : [0xfc, 0x10] : "table.size",
-;;TableGrow(ast::Index<'a>) : [0xfc, 0x0f] : "table.grow",
+(MemoryCopy memory.copy)
+(MemoryFill memory.fill)
+(DataDrop data.drop (Index Index))
+(ElemDrop elem.drop (Index Index))
+;;(TableInit table.init (Impl TableInit))
+(TableCopy table.copy)
+(TableFill table.fill (Index Index))
+(TableSize table.size (Index Index))
+(TableGrow table.grow (Index Index))
 
 (RefNull ref.null)
 (RefIsNull ref.is_null)
@@ -269,7 +287,7 @@ func main() {
 (I32Clz i32.clz)
 (I32Ctz i32.ctz)
 (I32Pocnt i32.popcnt)
-(I32Ad i32.add)
+(I32Add i32.add)
 (I32Sub i32.sub)
 (I32Mul i32.mul)
 (I32DivS i32.div_s)
@@ -372,41 +390,41 @@ func main() {
 (F64Le f64.le)
 (F64Ge f64.ge)
 
-;;(I32WrapI64 : [0xa7] : "i32.wrap_i64" | "i32.wrap/i64",
-;;(I32TruncF32S : [0xa8] : "i32.trunc_f32_s" | "i32.trunc_s/f32",
-;;(I32TruncF32U : [0xa9] : "i32.trunc_f32_u" | "i32.trunc_u/f32",
-;;(I32TruncF64S : [0xaa] : "i32.trunc_f64_s" | "i32.trunc_s/f64",
-;;(I32TruncF64U : [0xab] : "i32.trunc_f64_u" | "i32.trunc_u/f64",
-;;(I64ExtendI32S : [0xac] : "i64.extend_i32_s" | "i64.extend_s/i32",
-;;(I64ExtendI32U : [0xad] : "i64.extend_i32_u" | "i64.extend_u/i32",
-;;(I64TruncF32S : [0xae] : "i64.trunc_f32_s" | "i64.trunc_s/f32",
-;;(I64TruncF32U : [0xaf] : "i64.trunc_f32_u" | "i64.trunc_u/f32",
-;;(I64TruncF64S : [0xb0] : "i64.trunc_f64_s" | "i64.trunc_s/f64",
-;;(I64TruncF64U : [0xb1] : "i64.trunc_f64_u" | "i64.trunc_u/f64",
-;;(F32ConvertI32S : [0xb2] : "f32.convert_i32_s" | "f32.convert_s/i32",
-;;(F32ConvertI32U : [0xb3] : "f32.convert_i32_u" | "f32.convert_u/i32",
-;;(F32ConvertI64S : [0xb4] : "f32.convert_i64_s" | "f32.convert_s/i64",
-;;(F32ConvertI64U : [0xb5] : "f32.convert_i64_u" | "f32.convert_u/i64",
-;;(F32DemoteF64 : [0xb6] : "f32.demote_f64" | "f32.demote/f64",
-;;(F64ConvertI32S : [0xb7] : "f64.convert_i32_s" | "f64.convert_s/i32",
-;;(F64ConvertI32U : [0xb8] : "f64.convert_i32_u" | "f64.convert_u/i32",
-;;(F64ConvertI64S : [0xb9] : "f64.convert_i64_s" | "f64.convert_s/i64",
-;;(F64ConvertI64U : [0xba] : "f64.convert_i64_u" | "f64.convert_u/i64",
-;;(F64PromoteF32 : [0xbb] : "f64.promote_f32" | "f64.promote/f32",
-;;(I32ReinterpretF32 : [0xbc] : "i32.reinterpret_f32" | "i32.reinterpret/f32",
-;;(I64ReinterpretF64 : [0xbd] : "i64.reinterpret_f64" | "i64.reinterpret/f64",
-;;(F32ReinterpretI32 : [0xbe] : "f32.reinterpret_i32" | "f32.reinterpret/i32",
-;;(F64ReinterpretI64 : [0xbf] : "f64.reinterpret_i64" | "f64.reinterpret/i64",
-;;
+(I32WrapI64 (i32.wrap_i64 i32.wrap/i64))
+(I32TruncF32S (i32.trunc_f32_s i32.trunc_s/f32))
+(I32TruncF32U (i32.trunc_f32_u i32.trunc_u/f32))
+(I32TruncF64S (i32.trunc_f64_s i32.trunc_s/f64))
+(I32TruncF64U (i32.trunc_f64_u i32.trunc_u/f64))
+(I64ExtendI32S (i64.extend_i32_s i64.extend_s/i32))
+(I64ExtendI32U (i64.extend_i32_u i64.extend_u/i32))
+(I64TruncF32S (i64.trunc_f32_s i64.trunc_s/f32))
+(I64TruncF32U (i64.trunc_f32_u i64.trunc_u/f32))
+(I64TruncF64S (i64.trunc_f64_s i64.trunc_s/f64))
+(I64TruncF64U (i64.trunc_f64_u i64.trunc_u/f64))
+(F32ConvertI32S (f32.convert_i32_s f32.convert_s/i32))
+(F32ConvertI32U (f32.convert_i32_u f32.convert_u/i32))
+(F32ConvertI64S (f32.convert_i64.s f32.convert_s/i64))
+(F32ConvertI64U (f32.convert_i64.u f32.convert_u/i64))
+(F32DemoteF64 (f32.demote_f64 f32.demote/f64))
+(F64ConvertI32S (f64.convert_i32_s f64.convert_s/i32))
+(F64ConvertI32U (f64.convert_i32_u f64.convert_u/i32))
+(F64ConvertI64S (f64.convert_i64.s f64.convert_s/i64))
+(F64ConvertI64U (f64.convert_i64.u f64.convert_u/i64))
+(F64PromoteF32 (f64.promote_f32 f64.promote/f32))
+(I32ReinterpretF32 (i32.reinterpret_f32 i32.reinterpret/f32))
+(I64ReinterpretF64 (i64.reinterpret_f64 i64.reinterpret/f64))
+(F32ReinterpretI32 (f32.reinterpret_i32 f32.reinterpret/i32))
+(F64ReinterpretI64 (f64.reinterpret_i64 f64.reinterpret/i64))
+
 ;;(// non-trapping float to int
-;;(I32TruncSatF32S : [0xfc, 0x00] : "i32.trunc_sat_f32_s" | "i32.trunc_s:sat/f32",
-;;(I32TruncSatF32U : [0xfc, 0x01] : "i32.trunc_sat_f32_u" | "i32.trunc_u:sat/f32",
-;;(I32TruncSatF64S : [0xfc, 0x02] : "i32.trunc_sat_f64_s" | "i32.trunc_s:sat/f64",
-;;(I32TruncSatF64U : [0xfc, 0x03] : "i32.trunc_sat_f64_u" | "i32.trunc_u:sat/f64",
-;;(I64TruncSatF32S : [0xfc, 0x04] : "i64.trunc_sat_f32_s" | "i64.trunc_s:sat/f32",
-;;(I64TruncSatF32U : [0xfc, 0x05] : "i64.trunc_sat_f32_u" | "i64.trunc_u:sat/f32",
-;;(I64TruncSatF64S : [0xfc, 0x06] : "i64.trunc_sat_f64_s" | "i64.trunc_s:sat/f64",
-;;(I64TruncSatF64U : [0xfc, 0x07] : "i64.trunc_sat_f64_u" | "i64.trunc_u:sat/f64",
+(I32TruncSatF32S (i32.trunc_sat_f32_s i32.trunc_s:sat/f32))
+(I32TruncSatF32U (i32.trunc_sat_f32_u i32.trunc_u:sat/f32))
+(I32TruncSatF64S (i32.trunc_sat_f64_s i32.trunc_s:sat/f64))
+(I32TruncSatF64U (i32.trunc_sat_f64_u i32.trunc_u:sat/f64))
+(I64TruncSatF32S (i64.trunc_sat_f32_s i64.trunc_s:sat/f32))
+(I64TruncSatF32U (i64.trunc_sat_f32_u i64.trunc_u:sat/f32))
+(I64TruncSatF64S (i64.trunc_sat_f64_s i64.trunc_s:sat/f64))
+(I64TruncSatF64U (i64.trunc_sat_f64_u i64.trunc_u:sat/f64))
 
 ;; sign extension proposal
 (I32Extend8S i32.extend8_s)

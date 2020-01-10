@@ -35,11 +35,17 @@ func (self *Module) Parse(ps *parser.ParserBuffer) error {
 	} else {
 		var fields []ModuleField
 		for !ps.Empty() {
-			field, err := parseModuleField(ps)
+			err = ps.Parens(func(ps *parser.ParserBuffer) error {
+				field, err := parseModuleField(ps)
+				if err != nil {
+					return err
+				}
+				fields = append(fields, field)
+				return nil
+			})
 			if err != nil {
 				return err
 			}
-			fields = append(fields, field)
 		}
 
 		self.Kind = ModuleKindText{Fields: fields}
@@ -80,7 +86,7 @@ type implModuleField struct{}
 func (self implModuleField) moduleField() {}
 
 func parseModuleField(ps *parser.ParserBuffer) (ModuleField, error) {
-	kw, err := ps.ExpectKeyword()
+	kw, err := ps.PeekKeyword()
 	if err != nil {
 		return nil, err
 	}

@@ -186,6 +186,91 @@ func (self *Select) String() string {
 	return "select"
 }
 
+type LocalGet struct {
+	Index Index
+}
+
+func (self *LocalGet) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.Index.Parse(ps)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *LocalGet) String() string {
+	return "local.get"
+}
+
+type LocalSet struct {
+	Index Index
+}
+
+func (self *LocalSet) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.Index.Parse(ps)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *LocalSet) String() string {
+	return "local.set"
+}
+
+type LocalTee struct {
+	Index Index
+}
+
+func (self *LocalTee) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.Index.Parse(ps)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *LocalTee) String() string {
+	return "local.tee"
+}
+
+type GlobalGet struct {
+	Index Index
+}
+
+func (self *GlobalGet) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.Index.Parse(ps)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *GlobalGet) String() string {
+	return "global.get"
+}
+
+type GlobalSet struct {
+	Index Index
+}
+
+func (self *GlobalSet) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.Index.Parse(ps)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *GlobalSet) String() string {
+	return "global.set"
+}
+
 type TableGet struct {
 	Index Index
 }
@@ -218,6 +303,151 @@ func (self *TableSet) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *TableSet) String() string {
 	return "table.set"
+}
+
+type MemorySize struct {
+}
+
+func (self *MemorySize) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *MemorySize) String() string {
+	return "memory.size"
+}
+
+type MemoryGrow struct {
+}
+
+func (self *MemoryGrow) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *MemoryGrow) String() string {
+	return "memory.grow"
+}
+
+type MemoryCopy struct {
+}
+
+func (self *MemoryCopy) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *MemoryCopy) String() string {
+	return "memory.copy"
+}
+
+type MemoryFill struct {
+}
+
+func (self *MemoryFill) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *MemoryFill) String() string {
+	return "memory.fill"
+}
+
+type DataDrop struct {
+	Index Index
+}
+
+func (self *DataDrop) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.Index.Parse(ps)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *DataDrop) String() string {
+	return "data.drop"
+}
+
+type ElemDrop struct {
+	Index Index
+}
+
+func (self *ElemDrop) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.Index.Parse(ps)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *ElemDrop) String() string {
+	return "elem.drop"
+}
+
+type TableCopy struct {
+}
+
+func (self *TableCopy) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *TableCopy) String() string {
+	return "table.copy"
+}
+
+type TableFill struct {
+	Index Index
+}
+
+func (self *TableFill) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.Index.Parse(ps)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *TableFill) String() string {
+	return "table.fill"
+}
+
+type TableSize struct {
+	Index Index
+}
+
+func (self *TableSize) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.Index.Parse(ps)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *TableSize) String() string {
+	return "table.size"
+}
+
+type TableGrow struct {
+	Index Index
+}
+
+func (self *TableGrow) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.Index.Parse(ps)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *TableGrow) String() string {
+	return "table.grow"
 }
 
 type RefNull struct {
@@ -385,15 +615,15 @@ func (self *I32Pocnt) String() string {
 	return "i32.popcnt"
 }
 
-type I32Ad struct {
+type I32Add struct {
 }
 
-func (self *I32Ad) parseInstrBody(ps *parser.ParserBuffer) error {
+func (self *I32Add) parseInstrBody(ps *parser.ParserBuffer) error {
 
 	return nil
 }
 
-func (self *I32Ad) String() string {
+func (self *I32Add) String() string {
 	return "i32.add"
 }
 
@@ -1523,6 +1753,402 @@ func (self *F64Ge) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *F64Ge) String() string {
 	return "f64.ge"
+}
+
+type I32WrapI64 struct {
+}
+
+func (self *I32WrapI64) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *I32WrapI64) String() string {
+	return "i32.wrap_i64"
+}
+
+type I32TruncF32S struct {
+}
+
+func (self *I32TruncF32S) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *I32TruncF32S) String() string {
+	return "i32.trunc_f32_s"
+}
+
+type I32TruncF32U struct {
+}
+
+func (self *I32TruncF32U) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *I32TruncF32U) String() string {
+	return "i32.trunc_f32_u"
+}
+
+type I32TruncF64S struct {
+}
+
+func (self *I32TruncF64S) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *I32TruncF64S) String() string {
+	return "i32.trunc_f64_s"
+}
+
+type I32TruncF64U struct {
+}
+
+func (self *I32TruncF64U) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *I32TruncF64U) String() string {
+	return "i32.trunc_f64_u"
+}
+
+type I64ExtendI32S struct {
+}
+
+func (self *I64ExtendI32S) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *I64ExtendI32S) String() string {
+	return "i64.extend_i32_s"
+}
+
+type I64ExtendI32U struct {
+}
+
+func (self *I64ExtendI32U) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *I64ExtendI32U) String() string {
+	return "i64.extend_i32_u"
+}
+
+type I64TruncF32S struct {
+}
+
+func (self *I64TruncF32S) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *I64TruncF32S) String() string {
+	return "i64.trunc_f32_s"
+}
+
+type I64TruncF32U struct {
+}
+
+func (self *I64TruncF32U) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *I64TruncF32U) String() string {
+	return "i64.trunc_f32_u"
+}
+
+type I64TruncF64S struct {
+}
+
+func (self *I64TruncF64S) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *I64TruncF64S) String() string {
+	return "i64.trunc_f64_s"
+}
+
+type I64TruncF64U struct {
+}
+
+func (self *I64TruncF64U) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *I64TruncF64U) String() string {
+	return "i64.trunc_f64_u"
+}
+
+type F32ConvertI32S struct {
+}
+
+func (self *F32ConvertI32S) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *F32ConvertI32S) String() string {
+	return "f32.convert_i32_s"
+}
+
+type F32ConvertI32U struct {
+}
+
+func (self *F32ConvertI32U) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *F32ConvertI32U) String() string {
+	return "f32.convert_i32_u"
+}
+
+type F32ConvertI64S struct {
+}
+
+func (self *F32ConvertI64S) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *F32ConvertI64S) String() string {
+	return "f32.convert_i64.s"
+}
+
+type F32ConvertI64U struct {
+}
+
+func (self *F32ConvertI64U) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *F32ConvertI64U) String() string {
+	return "f32.convert_i64.u"
+}
+
+type F32DemoteF64 struct {
+}
+
+func (self *F32DemoteF64) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *F32DemoteF64) String() string {
+	return "f32.demote_f64"
+}
+
+type F64ConvertI32S struct {
+}
+
+func (self *F64ConvertI32S) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *F64ConvertI32S) String() string {
+	return "f64.convert_i32_s"
+}
+
+type F64ConvertI32U struct {
+}
+
+func (self *F64ConvertI32U) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *F64ConvertI32U) String() string {
+	return "f64.convert_i32_u"
+}
+
+type F64ConvertI64S struct {
+}
+
+func (self *F64ConvertI64S) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *F64ConvertI64S) String() string {
+	return "f64.convert_i64.s"
+}
+
+type F64ConvertI64U struct {
+}
+
+func (self *F64ConvertI64U) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *F64ConvertI64U) String() string {
+	return "f64.convert_i64.u"
+}
+
+type F64PromoteF32 struct {
+}
+
+func (self *F64PromoteF32) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *F64PromoteF32) String() string {
+	return "f64.promote_f32"
+}
+
+type I32ReinterpretF32 struct {
+}
+
+func (self *I32ReinterpretF32) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *I32ReinterpretF32) String() string {
+	return "i32.reinterpret_f32"
+}
+
+type I64ReinterpretF64 struct {
+}
+
+func (self *I64ReinterpretF64) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *I64ReinterpretF64) String() string {
+	return "i64.reinterpret_f64"
+}
+
+type F32ReinterpretI32 struct {
+}
+
+func (self *F32ReinterpretI32) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *F32ReinterpretI32) String() string {
+	return "f32.reinterpret_i32"
+}
+
+type F64ReinterpretI64 struct {
+}
+
+func (self *F64ReinterpretI64) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *F64ReinterpretI64) String() string {
+	return "f64.reinterpret_i64"
+}
+
+type I32TruncSatF32S struct {
+}
+
+func (self *I32TruncSatF32S) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *I32TruncSatF32S) String() string {
+	return "i32.trunc_sat_f32_s"
+}
+
+type I32TruncSatF32U struct {
+}
+
+func (self *I32TruncSatF32U) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *I32TruncSatF32U) String() string {
+	return "i32.trunc_sat_f32_u"
+}
+
+type I32TruncSatF64S struct {
+}
+
+func (self *I32TruncSatF64S) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *I32TruncSatF64S) String() string {
+	return "i32.trunc_sat_f64_s"
+}
+
+type I32TruncSatF64U struct {
+}
+
+func (self *I32TruncSatF64U) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *I32TruncSatF64U) String() string {
+	return "i32.trunc_sat_f64_u"
+}
+
+type I64TruncSatF32S struct {
+}
+
+func (self *I64TruncSatF32S) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *I64TruncSatF32S) String() string {
+	return "i64.trunc_sat_f32_s"
+}
+
+type I64TruncSatF32U struct {
+}
+
+func (self *I64TruncSatF32U) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *I64TruncSatF32U) String() string {
+	return "i64.trunc_sat_f32_u"
+}
+
+type I64TruncSatF64S struct {
+}
+
+func (self *I64TruncSatF64S) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *I64TruncSatF64S) String() string {
+	return "i64.trunc_sat_f64_s"
+}
+
+type I64TruncSatF64U struct {
+}
+
+func (self *I64TruncSatF64U) parseInstrBody(ps *parser.ParserBuffer) error {
+
+	return nil
+}
+
+func (self *I64TruncSatF64U) String() string {
+	return "i64.trunc_sat_f64_u"
 }
 
 type I32Extend8S struct {
@@ -3188,10 +3814,40 @@ func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
 		inst = &Drop{}
 	case "select":
 		inst = &Select{}
+	case "local.get", "get_local":
+		inst = &LocalGet{}
+	case "local.set", "set_local":
+		inst = &LocalSet{}
+	case "local.tee", "tee_local":
+		inst = &LocalTee{}
+	case "global.get", "get_global":
+		inst = &GlobalGet{}
+	case "global.set", "set_global":
+		inst = &GlobalSet{}
 	case "table.get":
 		inst = &TableGet{}
 	case "table.set":
 		inst = &TableSet{}
+	case "memory.size", "current_memory":
+		inst = &MemorySize{}
+	case "memory.grow", "grow_memory":
+		inst = &MemoryGrow{}
+	case "memory.copy":
+		inst = &MemoryCopy{}
+	case "memory.fill":
+		inst = &MemoryFill{}
+	case "data.drop":
+		inst = &DataDrop{}
+	case "elem.drop":
+		inst = &ElemDrop{}
+	case "table.copy":
+		inst = &TableCopy{}
+	case "table.fill":
+		inst = &TableFill{}
+	case "table.size":
+		inst = &TableSize{}
+	case "table.grow":
+		inst = &TableGrow{}
 	case "ref.null":
 		inst = &RefNull{}
 	case "ref.is_null":
@@ -3215,7 +3871,7 @@ func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
 	case "i32.popcnt":
 		inst = &I32Pocnt{}
 	case "i32.add":
-		inst = &I32Ad{}
+		inst = &I32Add{}
 	case "i32.sub":
 		inst = &I32Sub{}
 	case "i32.mul":
@@ -3404,6 +4060,72 @@ func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
 		inst = &F64Le{}
 	case "f64.ge":
 		inst = &F64Ge{}
+	case "i32.wrap_i64", "i32.wrap/i64":
+		inst = &I32WrapI64{}
+	case "i32.trunc_f32_s", "i32.trunc_s/f32":
+		inst = &I32TruncF32S{}
+	case "i32.trunc_f32_u", "i32.trunc_u/f32":
+		inst = &I32TruncF32U{}
+	case "i32.trunc_f64_s", "i32.trunc_s/f64":
+		inst = &I32TruncF64S{}
+	case "i32.trunc_f64_u", "i32.trunc_u/f64":
+		inst = &I32TruncF64U{}
+	case "i64.extend_i32_s", "i64.extend_s/i32":
+		inst = &I64ExtendI32S{}
+	case "i64.extend_i32_u", "i64.extend_u/i32":
+		inst = &I64ExtendI32U{}
+	case "i64.trunc_f32_s", "i64.trunc_s/f32":
+		inst = &I64TruncF32S{}
+	case "i64.trunc_f32_u", "i64.trunc_u/f32":
+		inst = &I64TruncF32U{}
+	case "i64.trunc_f64_s", "i64.trunc_s/f64":
+		inst = &I64TruncF64S{}
+	case "i64.trunc_f64_u", "i64.trunc_u/f64":
+		inst = &I64TruncF64U{}
+	case "f32.convert_i32_s", "f32.convert_s/i32":
+		inst = &F32ConvertI32S{}
+	case "f32.convert_i32_u", "f32.convert_u/i32":
+		inst = &F32ConvertI32U{}
+	case "f32.convert_i64.s", "f32.convert_s/i64":
+		inst = &F32ConvertI64S{}
+	case "f32.convert_i64.u", "f32.convert_u/i64":
+		inst = &F32ConvertI64U{}
+	case "f32.demote_f64", "f32.demote/f64":
+		inst = &F32DemoteF64{}
+	case "f64.convert_i32_s", "f64.convert_s/i32":
+		inst = &F64ConvertI32S{}
+	case "f64.convert_i32_u", "f64.convert_u/i32":
+		inst = &F64ConvertI32U{}
+	case "f64.convert_i64.s", "f64.convert_s/i64":
+		inst = &F64ConvertI64S{}
+	case "f64.convert_i64.u", "f64.convert_u/i64":
+		inst = &F64ConvertI64U{}
+	case "f64.promote_f32", "f64.promote/f32":
+		inst = &F64PromoteF32{}
+	case "i32.reinterpret_f32", "i32.reinterpret/f32":
+		inst = &I32ReinterpretF32{}
+	case "i64.reinterpret_f64", "i64.reinterpret/f64":
+		inst = &I64ReinterpretF64{}
+	case "f32.reinterpret_i32", "f32.reinterpret/i32":
+		inst = &F32ReinterpretI32{}
+	case "f64.reinterpret_i64", "f64.reinterpret/i64":
+		inst = &F64ReinterpretI64{}
+	case "i32.trunc_sat_f32_s", "i32.trunc_s:sat/f32":
+		inst = &I32TruncSatF32S{}
+	case "i32.trunc_sat_f32_u", "i32.trunc_u:sat/f32":
+		inst = &I32TruncSatF32U{}
+	case "i32.trunc_sat_f64_s", "i32.trunc_s:sat/f64":
+		inst = &I32TruncSatF64S{}
+	case "i32.trunc_sat_f64_u", "i32.trunc_u:sat/f64":
+		inst = &I32TruncSatF64U{}
+	case "i64.trunc_sat_f32_s", "i64.trunc_s:sat/f32":
+		inst = &I64TruncSatF32S{}
+	case "i64.trunc_sat_f32_u", "i64.trunc_u:sat/f32":
+		inst = &I64TruncSatF32U{}
+	case "i64.trunc_sat_f64_s", "i64.trunc_s:sat/f64":
+		inst = &I64TruncSatF64S{}
+	case "i64.trunc_sat_f64_u", "i64.trunc_u:sat/f64":
+		inst = &I64TruncSatF64U{}
 	case "i32.extend8_s":
 		inst = &I32Extend8S{}
 	case "i32.extend16_s":

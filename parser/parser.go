@@ -151,6 +151,10 @@ func (self *ParserBuffer) ExpectUint64() (uint64, error) {
 	return  val.ToUint(64)
 }
 
+func (self *ParserBuffer) PeekKeyword() (string, error) {
+	return self.clone().ExpectKeyword()
+}
+
 func (self *ParserBuffer) PeekUint32() bool {
 	_, err := self.clone().ExpectUint32()
 
@@ -234,17 +238,6 @@ func (self *ParserBuffer)Parens(fn func (ps *ParserBuffer) error) error {
 		return err
 	}
 
-	return nil
-}
-
-func (self *ParserBuffer)Step(fn func (cursor *Cursor) error) error {
-	cursor := self.Cursor()
-	err := fn(&cursor)
-	if err != nil {
-		return err
-	}
-
-	self.curr = cursor.curr
 	return nil
 }
 
