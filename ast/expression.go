@@ -58,31 +58,6 @@ func (self *Block) String() string {
 	return "block"
 }
 
-func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
-	var inst Instruction
-	kw, err := ps.ExpectKeyword()
-	if err != nil {
-		return nil, err
-	}
-	switch kw {
-	case "unreachable":
-		inst = &Unreachable{}
-	case "nop":
-		inst = &Nop{}
-	case "block":
-		inst = &Block{}
-	case "i32.const":
-		inst = &I32Const{}
-	default:
-		panic("todo")
-	}
-	err = inst.parseInstrBody(ps)
-	if err != nil {
-		return nil, err
-	}
-	return inst, nil
-}
-
 type instructions struct {
 	Instrs []Instruction
 }
@@ -136,7 +111,7 @@ func (self *instructions) parseOneInstr(ps *parser.ParserBuffer) error {
 }
 
 type BrTableIndices struct {
-	Labels []Index
+	Labels  []Index
 	Default Index
 }
 
@@ -153,7 +128,7 @@ func (self *BrTableIndices) Parse(ps *parser.ParserBuffer) error {
 		if err != nil {
 			return err
 		}
-		
+
 		self.Labels = append(self.Labels, index)
 	}
 	self.Default = self.Labels[len(self.Labels)-1]
@@ -163,7 +138,7 @@ func (self *BrTableIndices) Parse(ps *parser.ParserBuffer) error {
 
 type CallIndirectInner struct {
 	Table Index
-	Type TypeUse
+	Type  TypeUse
 }
 
 func (self *CallIndirectInner) Parse(ps *parser.ParserBuffer) error {
@@ -188,10 +163,9 @@ type SelectTypes struct {
 	Types []ValType
 }
 
-
 func (self *SelectTypes) Parse(ps *parser.ParserBuffer) error {
 	for matchKeyword(ps.Peek2Token(), "result") {
-		err := ps.Parens(func (ps *parser.ParserBuffer)error {
+		err := ps.Parens(func(ps *parser.ParserBuffer) error {
 			_ = ps.ExpectKeywordMatch("result")
 			for !ps.Empty() {
 				var ty ValType

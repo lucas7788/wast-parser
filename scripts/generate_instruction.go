@@ -141,15 +141,6 @@ func parseInt(name string, ty string) string {
 `, map[string]interface{}{"Id": name, "Type": ty})
 }
 
-func parseUint32(name string) string {
-	return generate(`val, err := ps.ExpectUint32()
-	if err != nil {
-		return err
-	}
-	self.[Id] = val
-`, map[string]interface{}{"Id": name})
-}
-
 func mustParseInstrs(source string) []Instruction {
 	ps, err := parser.NewParserBuffer(source)
 	if err != nil {
@@ -168,6 +159,34 @@ func mustParseInstrs(source string) []Instruction {
 	}
 
 	return instrs
+}
+
+func generateParseInstrution(instrs []Instruction) string {
+	var cases []string
+	for _, instr := range instrs {
+		cases = append(cases, generate( ` case "[Id]":
+		inst = &[Name]{}`, map[string]interface{}{"Id": instr.Id, "Name":instr.Name}))
+	}
+
+return generate(`
+func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
+	var inst Instruction
+	kw, err := ps.ExpectKeyword()
+	if err != nil {
+		return nil, err
+	}
+	switch kw {
+	[cases]
+	default:
+		panic("todo")
+	}
+	err = inst.parseInstrBody(ps)
+	if err != nil {
+		return nil, err
+	}
+	return inst, nil
+}
+`, map[string]interface{}{"cases": strings.Join(cases, "\n")})
 }
 
 func main() {
@@ -663,13 +682,16 @@ func main() {
 		all += ins.Generate()
 	}
 
+	parseInstr := generateParseInstrution(allInstrs)
+
 	goFile := generate(`
 package ast
 
 import "github.com/ontio/wast-parser/parser"
 
 [Instrs]
-`, map[string]interface{}{"Instrs": all})
+[parseInstr]
+`, map[string]interface{}{"Instrs": all, "parseInstr": parseInstr})
 
 	err := ioutil.WriteFile("../ast/instruction.go", []byte(goFile), 0666)
 	if err != nil {

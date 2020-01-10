@@ -123,7 +123,6 @@ func (self *Index) Parse(ps *parser.ParserBuffer) error {
 	})
 }
 
-
 type Float32 struct {
 	bits uint32
 }
