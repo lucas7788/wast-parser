@@ -154,6 +154,17 @@ func (self *ParserBuffer) PeekKeyword() (string, error) {
 	return self.clone().ExpectKeyword()
 }
 
+func (self *ParserBuffer) TryKeyword() (string, error) {
+	cl :=  self.clone()
+	str, err := cl.ExpectKeyword()
+	if err != nil {
+		return "", err
+	}
+
+	self.curr = cl.curr
+	return str, nil
+}
+
 func (self *ParserBuffer) PeekUint32() bool {
 	_, err := self.clone().ExpectUint32()
 
