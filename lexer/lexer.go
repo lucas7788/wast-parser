@@ -457,6 +457,9 @@ func (self *Lexer) ReadStringToken() (string, error) {
 		switch c {
 		case '\\':
 			ecs, err := self.ReadChar()
+			if err != nil {
+				return "", err
+			}
 			switch ecs {
 			case '"':
 				result += string('"')
@@ -471,16 +474,16 @@ func (self *Lexer) ReadStringToken() (string, error) {
 			case '\\':
 				result += string('\\')
 			case 'u':
-				if err = self.ExpectKeywordMatch("{"); err != nil {
-					return "", err
+				if !self.SkipPrefix("{") {
+					return "", fmt.Errorf("expected start with {")
 				}
 				n, err := self.hexnum()
 				if err != nil {
 					return "", err
 				}
 				result += string(n)
-				if err = self.ExpectKeywordMatch("}"); err != nil {
-					return "", err
+				if self.SkipPrefix("}") {
+					return "", fmt.Errorf("expected end with }")
 				}
 			default:
 				if validHexDigit(byte(c)) {
@@ -494,7 +497,7 @@ func (self *Lexer) ReadStringToken() (string, error) {
 				}
 			}
 		case '"':
-			break
+			return result, nil
 		default:
 			if c < 0x20 || c == 0x7f {
 				return "", fmt.Errorf("invalid string element %v", c)
@@ -502,20 +505,9 @@ func (self *Lexer) ReadStringToken() (string, error) {
 			result += string(c)
 		}
 	}
-	return "", nil
+	return result, nil
 }
 
-func (self *Lexer) ExpectKeywordMatch(expect string) error {
-	token, err := self.ReadToken()
-	if err != nil {
-		return err
-	}
-	if token.String() != expect {
-		return fmt.Errorf("expect keyword: %s, got: %s", expect, token.String())
-	}
-
-	return nil
-}
 func (self *Lexer) hexnum() (uint32, error) {
 	n, err := self.hexdigit()
 	if err != nil {
