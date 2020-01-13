@@ -48,16 +48,6 @@ func (self *End) String() string {
 	return "end"
 }
 
-type Then struct {
-}
-
-func (self *Then) parseInstrBody(ps *parser.ParserBuffer) error {
-	return nil
-}
-func (self *Then) String() string {
-	return "if"
-}
-
 type instructions struct {
 	Instrs []Instruction
 }
