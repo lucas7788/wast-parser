@@ -506,7 +506,6 @@ func (self *Lexer) ReadStringToken() (string, error) {
 }
 
 func (self *Lexer) ExpectKeywordMatch(expect string) error {
-
 	token, err := self.ReadToken()
 	if err != nil {
 		return err
@@ -524,7 +523,7 @@ func (self *Lexer) hexnum() (uint32, error) {
 	}
 	lastUnderscore := false
 	for {
-		c, err := self.PeekChar()
+		c, err := self.ReadChar()
 		if err != nil {
 			return 0, err
 		}
@@ -545,7 +544,7 @@ func (self *Lexer) hexnum() (uint32, error) {
 }
 
 func (self *Lexer) hexdigit() (byte, error) {
-	ch, err := self.PeekChar()
+	ch, err := self.ReadChar()
 	if err != nil {
 		return 0, err
 	}
