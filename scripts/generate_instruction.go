@@ -209,9 +209,9 @@ func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
 
 func main() {
 	instrs := `
-;;Block(BlockType<'a>) : [0x02] : "block",
-;;If(BlockType<'a>) : [0x04] : "if",
-;;Else(Option<ast::Id<'a>>) : [0x05] : "else",
+(Block block (BlockType BlockType))
+(If if (BlockType BlockType))
+(Else else (Id OptionId))
 ;;Loop(BlockType<'a>) : [0x03] : "loop",
 ;;End(Option<ast::Id<'a>>) : [0x0b] : "end",
 

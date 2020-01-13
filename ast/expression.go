@@ -48,27 +48,6 @@ func (self *End) String() string {
 	return "end"
 }
 
-type Block struct {
-}
-
-func (self *Block) parseInstrBody(ps *parser.ParserBuffer) error {
-	return nil
-}
-
-func (self *Block) String() string {
-	return "block"
-}
-
-type If struct {
-}
-
-func (self *If) parseInstrBody(ps *parser.ParserBuffer) error {
-	return nil
-}
-func (self *If) String() string {
-	return "if"
-}
-
 type Then struct {
 }
 
@@ -77,17 +56,6 @@ func (self *Then) parseInstrBody(ps *parser.ParserBuffer) error {
 }
 func (self *Then) String() string {
 	return "if"
-}
-
-type Else struct {
-}
-
-func (self *Else) parseInstrBody(ps *parser.ParserBuffer) error {
-	return nil
-}
-
-func (self *Else) String() string {
-	return "else"
 }
 
 type instructions struct {

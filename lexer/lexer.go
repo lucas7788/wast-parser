@@ -2,7 +2,7 @@ package lexer
 
 import (
 	"bytes"
-	"errors"
+	"encoding/binary"
 	"fmt"
 	"io"
 	"strconv"
@@ -379,7 +379,7 @@ func (self *Lexer) SkipComment() bool {
 				if b == '(' && self.SkipPrefix(";") {
 					level += 1
 				}
-				if b == ')' && self.SkipPrefix(")") {
+				if b == ';' && self.SkipPrefix(")") {
 					level -= 1
 					if level == 0 {
 						return true
@@ -449,18 +449,116 @@ func (self *Lexer) ReadToken() (Token, error) {
 }
 
 func (self *Lexer) ReadStringToken() (string, error) {
-	//todo: handle escape
-	str := self.ReadWhile(func(b byte) bool {
-		return b != "\""[0]
-	})
-
-	if !self.SkipPrefix("\"") {
-		return "", errors.New("read string token error")
+	buf := make([]byte, 0)
+	for {
+		c, err := self.PeekChar()
+		if err != nil {
+			return "", err
+		}
+		switch c {
+		case '"':
+			buf = append(buf, '"')
+		case '\'':
+			buf = append(buf, '\'')
+		case 't':
+			buf = append(buf, '\t')
+		case 'n':
+			buf = append(buf, '\n')
+		case 'r':
+			buf = append(buf, '\r')
+		case '\\':
+			buf = append(buf, '\\')
+		case 'u':
+			if err = self.ExpectKeywordMatch("{"); err != nil {
+				return "", err
+			}
+			n, err := self.hexnum()
+			if err != nil {
+				return "", err
+			}
+			var bs [4]byte
+			binary.BigEndian.PutUint32(bs[:], n)
+			for _, item := range bs {
+				buf = append(buf, item)
+			}
+			if err = self.ExpectKeywordMatch("}"); err != nil {
+				return "", err
+			}
+		default:
+			if validHexDigit(byte(c)) {
+				c2, err := self.hexdigit()
+				if err != nil {
+					return "", err
+				}
+				buf = append(buf, to_hex(c)*16+c2)
+			} else {
+				return "", fmt.Errorf("UnexpectedEof")
+			}
+		}
 	}
 
-	return str, nil
+	return "", nil
 }
 
+func (self *Lexer) ExpectKeywordMatch(expect string) error {
+
+	token, err := self.ReadToken()
+	if err != nil {
+		return err
+	}
+	if token.String() != expect {
+		return fmt.Errorf("expect keyword: %s, got: %s", expect, token.String())
+	}
+
+	return nil
+}
+func (self *Lexer) hexnum() (uint32, error) {
+	n, err := self.hexdigit()
+	if err != nil {
+		return 0, err
+	}
+	lastUnderscore := false
+	for {
+		c, err := self.PeekChar()
+		if err != nil {
+			return 0, err
+		}
+		if c == '_' {
+			lastUnderscore = true
+			continue
+		}
+		if !validHexDigit(byte(c)) {
+			break
+		}
+		lastUnderscore = false
+		n = n*16 + to_hex(c)
+	}
+	if lastUnderscore {
+		return 0, fmt.Errorf("LoneUnderscore")
+	}
+	return uint32(n), nil
+}
+
+func (self *Lexer) hexdigit() (byte, error) {
+	ch, err := self.PeekChar()
+	if err != nil {
+		return 0, err
+	}
+	if validHexDigit(byte(ch)) {
+		return to_hex(ch), nil
+	}
+	return 0, fmt.Errorf("InvalidHexDigit")
+}
+
+func to_hex(c rune) byte {
+	if 'a' <= c && c <= 'f' {
+		return byte(c) - 'a' + 10
+	} else if 'A' <= c && c <= 'F' {
+		return byte(c) - 'A' + 10
+	} else {
+		return byte(c) - '0'
+	}
+}
 func isIdChar(b byte) bool {
 	if b >= '0' && b <= '9' {
 		return true

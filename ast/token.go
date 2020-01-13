@@ -38,8 +38,8 @@ func (self OptionId) ToId() Id {
 	return self.name
 }
 
-func (self *OptionId) Parse(ps *parser.ParserBuffer) {
-	_ = ps.TryParse(&self.name)
+func (self *OptionId) Parse(ps *parser.ParserBuffer) error {
+	return ps.TryParse(&self.name)
 }
 
 type Index struct {
@@ -130,4 +130,25 @@ type Float64 struct {
 
 func (self *Float64) Parse(ps *parser.ParserBuffer) error {
 	panic("todo")
+}
+
+type BlockType struct {
+	Label Id
+	Ty    TypeUse
+}
+
+func (self *BlockType) Parse(ps *parser.ParserBuffer) error {
+	var id Id
+	err := id.Parse(ps)
+	if err != nil {
+		return err
+	}
+	self.Label = id
+	ty := TypeUse{}
+	err = ty.ParseNoNames(ps)
+	if err != nil {
+		return err
+	}
+	self.Ty = ty
+	return nil
 }
