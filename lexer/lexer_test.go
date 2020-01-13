@@ -25,18 +25,24 @@ func TestLexer(t *testing.T) {
 
 }
 
-func TestLineComment(t *testing.T) {
-	skipComment := func(input string) string {
-		lexer := NewLexer(input)
-		lexer.SkipComment()
-		return string(lexer.buf.Bytes())
-	}
+func skipComment(input string) string {
+	lexer := NewLexer(input)
+	lexer.SkipComment()
+	return string(lexer.buf.Bytes())
+}
 
+func TestLineComment(t *testing.T) {
 	assert.Equal(t, skipComment(";;"), "")
 	assert.Equal(t, skipComment(";;xyz "), "")
 	assert.Equal(t, skipComment(";;xaz\nabc"), "abc")
 	assert.Equal(t, skipComment(";;xa\nz\nabc"), "z\nabc")
 	assert.Equal(t, skipComment(";;x;;a\nz\nabc"), "z\nabc")
+}
+
+func TestBlockComment(t *testing.T) {
+	assert.Equal(t, skipComment("(;;)"), "(;;)")
+	assert.Equal(t, skipComment("(; ;)"), "(; ;)")
+	assert.Equal(t, skipComment("(; (;;) ;)"), "(; (;;) ;)")
 }
 
 func TestId(t *testing.T) {
