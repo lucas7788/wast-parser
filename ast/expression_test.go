@@ -9,8 +9,7 @@ import (
 )
 
 func TestExpression(t *testing.T) {
-	//ps, err := parser.NewParserBuffer(` (i32.const 0) unreachable (nop) )`)
-	ps, err := parser.NewParserBuffer(`(if (local.get 0) (then))`)
+	ps, err := parser.NewParserBuffer(` (i32.const 0) unreachable (nop) )`)
 	assert.Nil(t, err)
 
 	var expr Expression
