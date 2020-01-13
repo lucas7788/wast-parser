@@ -2,7 +2,6 @@ package lexer
 
 import (
 	"bytes"
-	"encoding/binary"
 	"fmt"
 	"io"
 	"strconv"
@@ -449,54 +448,60 @@ func (self *Lexer) ReadToken() (Token, error) {
 }
 
 func (self *Lexer) ReadStringToken() (string, error) {
-	buf := make([]byte, 0)
+	var result string
 	for {
-		c, err := self.PeekChar()
+		c, err := self.ReadChar()
 		if err != nil {
 			return "", err
 		}
 		switch c {
-		case '"':
-			buf = append(buf, '"')
-		case '\'':
-			buf = append(buf, '\'')
-		case 't':
-			buf = append(buf, '\t')
-		case 'n':
-			buf = append(buf, '\n')
-		case 'r':
-			buf = append(buf, '\r')
 		case '\\':
-			buf = append(buf, '\\')
-		case 'u':
-			if err = self.ExpectKeywordMatch("{"); err != nil {
-				return "", err
-			}
-			n, err := self.hexnum()
-			if err != nil {
-				return "", err
-			}
-			var bs [4]byte
-			binary.BigEndian.PutUint32(bs[:], n)
-			for _, item := range bs {
-				buf = append(buf, item)
-			}
-			if err = self.ExpectKeywordMatch("}"); err != nil {
-				return "", err
-			}
-		default:
-			if validHexDigit(byte(c)) {
-				c2, err := self.hexdigit()
+			ecs, err := self.ReadChar()
+			switch ecs {
+			case '"':
+				result += string('"')
+			case '\'':
+				result += string('\'')
+			case 't':
+				result += string('\t')
+			case 'n':
+				result += string('\n')
+			case 'r':
+				result += string('\r')
+			case '\\':
+				result += string('\\')
+			case 'u':
+				if err = self.ExpectKeywordMatch("{"); err != nil {
+					return "", err
+				}
+				n, err := self.hexnum()
 				if err != nil {
 					return "", err
 				}
-				buf = append(buf, to_hex(c)*16+c2)
-			} else {
-				return "", fmt.Errorf("UnexpectedEof")
+				result += string(n)
+				if err = self.ExpectKeywordMatch("}"); err != nil {
+					return "", err
+				}
+			default:
+				if validHexDigit(byte(c)) {
+					c2, err := self.hexdigit()
+					if err != nil {
+						return "", err
+					}
+					result += string(to_hex(c)*16 + c2)
+				} else {
+					return "", fmt.Errorf("UnexpectedEof")
+				}
 			}
+		case '"':
+			break
+		default:
+			if c < 0x20 || c == 0x7f {
+				return "", fmt.Errorf("invalid string element %v", c)
+			}
+			result += string(c)
 		}
 	}
-
 	return "", nil
 }
 
