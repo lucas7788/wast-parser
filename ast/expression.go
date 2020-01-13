@@ -1,6 +1,7 @@
 package ast
 
 import (
+	"fmt"
 	"github.com/ontio/wast-parser/lexer"
 	"github.com/ontio/wast-parser/parser"
 )
@@ -58,6 +59,37 @@ func (self *Block) String() string {
 	return "block"
 }
 
+type If struct {
+}
+
+func (self *If) parseInstrBody(ps *parser.ParserBuffer) error {
+	return nil
+}
+func (self *If) String() string {
+	return "if"
+}
+
+type Then struct {
+}
+
+func (self *Then) parseInstrBody(ps *parser.ParserBuffer) error {
+	return nil
+}
+func (self *Then) String() string {
+	return "if"
+}
+
+type Else struct {
+}
+
+func (self *Else) parseInstrBody(ps *parser.ParserBuffer) error {
+	return nil
+}
+
+func (self *Else) String() string {
+	return "else"
+}
+
 type instructions struct {
 	Instrs []Instruction
 }
@@ -97,7 +129,43 @@ func (self *instructions) parseOneInstr(ps *parser.ParserBuffer) error {
 				return err
 			}
 			self.Instrs = append(self.Instrs, &End{Id: NoneOptionId()})
-		//case If : todo
+		case *If:
+			if ps.PeekToken().Type() != lexer.LParenType {
+				return fmt.Errorf("expected (")
+			}
+			if !matchKeyword(ps.Peek2Token(), "then") {
+				self.parseOneInstr(ps)
+			}
+			self.Instrs = append(self.Instrs, val)
+			if ps.PeekToken().Type() != lexer.LParenType {
+				return fmt.Errorf("expected `(`")
+			}
+			if matchKeyword(ps.Peek2Token(), "then") {
+				err = ps.Parens(func(ps *parser.ParserBuffer) error {
+					return self.parseFoldedInstrs(ps)
+				})
+			} else {
+				self.parseOneInstr(ps)
+			}
+			if ps.PeekToken().Type() == lexer.LParenType {
+				before := len(self.Instrs)
+				self.Instrs = append(self.Instrs, &Else{})
+				if matchKeyword(ps.Peek2Token(), "else") {
+					err = ps.Parens(func(ps *parser.ParserBuffer) error {
+						_ = ps.ExpectKeywordMatch("else")
+						return self.parseFoldedInstrs(ps)
+					})
+					if err != nil {
+						return err
+					}
+					if before+1 == len(self.Instrs) {
+						self.Instrs = self.Instrs[:before]
+					}
+				} else {
+					self.parseOneInstr(ps)
+				}
+			}
+			self.Instrs = append(self.Instrs, &End{})
 		default:
 			err := self.parseFoldedInstrs(ps)
 			if err != nil {

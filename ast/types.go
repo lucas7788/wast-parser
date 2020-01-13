@@ -55,13 +55,23 @@ type GlobalValType struct {
 }
 
 func (self *GlobalValType) Parse(ps *parser.ParserBuffer) error {
-	//todo: parse mutable case
-	err := self.Type.Parse(ps)
-	if err != nil {
-		return err
+	if matchKeyword(ps.Peek2Token(), "mut") {
+		err := ps.Parens(func(ps *parser.ParserBuffer) error {
+			_ = ps.ExpectKeywordMatch("mut")
+			self.Type.Parse(ps)
+			self.Mutable = true
+			return nil
+		})
+		if err != nil {
+			return err
+		}
+	} else {
+		err := self.Type.Parse(ps)
+		if err != nil {
+			return err
+		}
+		self.Mutable = false
 	}
-	self.Mutable = false
-
 	return nil
 }
 
@@ -115,6 +125,7 @@ type TableElemType struct {
 
 var FuncRef = TableElemType{ty: 0}
 var AnyRef = TableElemType{ty: 1}
+var NullRef = TableElemType{ty: 2}
 
 func (self *TableElemType) Parse(ps *parser.ParserBuffer) error {
 	kw, err := ps.ExpectKeyword()
@@ -125,9 +136,14 @@ func (self *TableElemType) Parse(ps *parser.ParserBuffer) error {
 	switch kw {
 	case "anyfunc":
 		*self = FuncRef
+	case "funcref":
+		*self = FuncRef
+	case "anyref":
+		*self = AnyRef
+	case "nullref":
+		*self = NullRef
 	default:
-		//todo: check impl
-		panic("unimplement")
+		return fmt.Errorf("default")
 	}
 
 	return nil

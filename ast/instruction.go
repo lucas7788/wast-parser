@@ -1,6 +1,8 @@
 package ast
 
-import "github.com/ontio/wast-parser/parser"
+import (
+	"github.com/ontio/wast-parser/parser"
+)
 
 type Unreachable struct {
 }
@@ -3792,6 +3794,10 @@ func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
 	switch kw {
 	case "unreachable":
 		inst = &Unreachable{}
+	case "if":
+		inst = &If{}
+	case "then":
+		inst = &Then{}
 	case "nop":
 		inst = &Nop{}
 	case "br":

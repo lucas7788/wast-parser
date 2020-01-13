@@ -373,7 +373,22 @@ func (self *Lexer) SkipComment() bool {
 			checked = false
 			skipped = true
 		}
-		//todo: multi comment
+		if self.SkipPrefix("(;") {
+			level := 1
+			self.ReadWhile(func(b byte) bool {
+				if b == '(' && self.SkipPrefix(";") {
+					level += 1
+				}
+				if b == ')' && self.SkipPrefix(")") {
+					level -= 1
+					if level == 0 {
+						return true
+					}
+				}
+				return false
+			})
+			return false
+		}
 	}
 
 	return skipped
