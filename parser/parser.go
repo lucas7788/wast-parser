@@ -49,9 +49,9 @@ func (self *ParserBuffer) Cursor() Cursor {
 
 func (self *ParserBuffer) ExpectString() (string, error) {
 	cursor := self.Cursor()
-	str := cursor.String()
-	if str == "" {
-		return "", errors.New("expect string")
+	str, err := cursor.String()
+	if err != nil {
+		return "", err
 	}
 	self.curr = cursor.curr
 
@@ -326,12 +326,12 @@ func (self *Cursor) Integer() (val lexer.Integer, err error) {
 	return val, errors.New("expect integer")
 }
 
-func (self *Cursor) String() string {
+func (self *Cursor) String() (string, error) {
 	if token := self.readToken(); token != nil {
 		if t, ok := token.(lexer.String); ok {
-			return string(t.Val)
+			return string(t.Val), nil
 		}
 	}
 
-	return ""
+	return "", errors.New("expect string token")
 }

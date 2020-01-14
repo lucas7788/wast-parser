@@ -120,12 +120,12 @@ func (self Integer) String() string {
 }
 
 func (self *Integer) ToUint(bitSize int) (uint64, error) {
-	base := 10
-	if self.Hex {
-		base = 16
+	val, err := self.ToInt(bitSize)
+	if err != nil {
+		return 0, err
 	}
 
-	return strconv.ParseUint(self.Val, base, bitSize)
+	return uint64(val), nil
 }
 
 func (self *Integer) ToInt(bitSize int) (int64, error) {
