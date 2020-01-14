@@ -219,7 +219,7 @@ func main() {
 (Block block (BlockType BlockType))
 (If if (BlockType BlockType))
 (Else else (Id OptionId))
-;;Loop(BlockType<'a>) : [0x03] : "loop",
+(Loop loop (BlockType BlockType))
 (End end (Id OptionId))
 
 (Unreachable unreachable)

@@ -54,6 +54,23 @@ func (self *Else) String() string {
 	return "else"
 }
 
+type Loop struct {
+	BlockType BlockType
+}
+
+func (self *Loop) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.BlockType.Parse(ps)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *Loop) String() string {
+	return "loop"
+}
+
 type End struct {
 	Id OptionId
 }
@@ -3879,6 +3896,8 @@ func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
 		inst = &If{}
 	case "else":
 		inst = &Else{}
+	case "loop":
+		inst = &Loop{}
 	case "end":
 		inst = &End{}
 	case "unreachable":
