@@ -40,9 +40,9 @@ func TestLineComment(t *testing.T) {
 }
 
 func TestBlockComment(t *testing.T) {
-	assert.Equal(t, skipComment("(;;)"), "(;;)")
-	assert.Equal(t, skipComment("(; ;)"), "(; ;)")
-	assert.Equal(t, skipComment("(; (;;) ;)"), "(; (;;) ;)")
+	assert.Equal(t, skipComment("(;;)"), "")
+	assert.Equal(t, skipComment("(; ;)"), "")
+	assert.Equal(t, skipComment("(; (;;) ;)"), "")
 }
 
 func TestId(t *testing.T) {

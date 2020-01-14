@@ -374,17 +374,21 @@ func (self *Lexer) SkipComment() bool {
 		}
 		if self.SkipPrefix("(;") {
 			level := 1
+			finished := false
 			self.ReadWhile(func(b byte) bool {
+				if finished {
+					return false
+				}
 				if b == '(' && self.SkipPrefix(";") {
 					level += 1
 				}
 				if b == ';' && self.SkipPrefix(")") {
 					level -= 1
 					if level == 0 {
-						return true
+						finished = true
 					}
 				}
-				return false
+				return true
 			})
 			return false
 		}
