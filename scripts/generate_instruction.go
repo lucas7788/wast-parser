@@ -220,7 +220,7 @@ func main() {
 (If if (BlockType BlockType))
 (Else else (Id OptionId))
 ;;Loop(BlockType<'a>) : [0x03] : "loop",
-;;End(Option<ast::Id<'a>>) : [0x0b] : "end",
+(End end (Id OptionId))
 
 (Unreachable unreachable)
 (Nop nop)

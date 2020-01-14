@@ -54,6 +54,20 @@ func (self *Else) String() string {
 	return "else"
 }
 
+type End struct {
+	Id OptionId
+}
+
+func (self *End) parseInstrBody(ps *parser.ParserBuffer) error {
+	self.Id.Parse(ps)
+
+	return nil
+}
+
+func (self *End) String() string {
+	return "end"
+}
+
 type Unreachable struct {
 }
 
@@ -3848,6 +3862,8 @@ func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
 		inst = &If{}
 	case "else":
 		inst = &Else{}
+	case "end":
+		inst = &End{}
 	case "unreachable":
 		inst = &Unreachable{}
 	case "nop":
