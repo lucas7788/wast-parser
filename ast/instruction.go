@@ -41,10 +41,7 @@ type Else struct {
 }
 
 func (self *Else) parseInstrBody(ps *parser.ParserBuffer) error {
-	err := self.Id.Parse(ps)
-	if err != nil {
-		return err
-	}
+	self.Id.Parse(ps)
 
 	return nil
 }

@@ -1,6 +1,5 @@
 package ast
 
-
 import (
 	"fmt"
 	"github.com/ontio/wast-parser/parser"
@@ -18,6 +17,7 @@ func LoadWastFiles(dir string) (map[string][]byte, error) {
 	if err != nil {
 		return nil, err
 	}
+	fnames = []string{"../tests/spectestdata/data.wast"}
 	for _, name := range fnames {
 		if !strings.HasSuffix(name, ".wast") {
 			continue
@@ -32,12 +32,12 @@ func LoadWastFiles(dir string) (map[string][]byte, error) {
 	return wasts, nil
 }
 
-
 func TestWastParsing(t *testing.T) {
 	wasts, err := LoadWastFiles("../tests/spectestdata/")
 	assert.Nil(t, err)
 
 	for name, content := range wasts {
+		fmt.Printf("test file: %s\n", name)
 		ps, err := parser.NewParserBuffer(string(content))
 		assert.Nil(t, err)
 		var wast Wast

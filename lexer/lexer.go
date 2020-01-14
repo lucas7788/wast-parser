@@ -360,19 +360,15 @@ func (self *Lexer) SkipWhiteSpace() bool {
 
 func (self *Lexer) SkipComment() bool {
 	skipped := false
-	checked := false
-	for !checked {
-		checked = true
-
+	for {
 		if self.SkipPrefix(";;") {
 			self.ReadWhile(func(b byte) bool {
 				return b != '\n'
 			})
 			self.SkipPrefix("\n")
-			checked = false
 			skipped = true
-		}
-		if self.SkipPrefix("(;") {
+			continue
+		} else if self.SkipPrefix("(;") {
 			level := 1
 			finished := false
 			self.ReadWhile(func(b byte) bool {
@@ -390,8 +386,11 @@ func (self *Lexer) SkipComment() bool {
 				}
 				return true
 			})
-			return false
+			skipped = true
+			continue
 		}
+
+		break
 	}
 
 	return skipped
@@ -409,9 +408,7 @@ func (self *Lexer) SkipPrefix(pref string) bool {
 func (self *Lexer) Parse() (Token, error) {
 	skipped := true
 	for skipped {
-		skipped = false
-		skipped = self.SkipWhiteSpace()
-		skipped = skipped || self.SkipComment()
+		skipped = self.SkipWhiteSpace() || self.SkipComment()
 	}
 
 	if self.Eof() {

@@ -133,6 +133,8 @@ func (self Instruction) generateParseBody() string {
 			body += parseInt(field.Name, "Uint32")
 		case "int64":
 			body += parseInt(field.Name, "Int64")
+		case "OptionId":
+			body += parseOptionId(field.Name)
 		default:
 			body += parseGeneral(field.Name)
 		}
@@ -147,6 +149,11 @@ func parseGeneral(name string) string {
 	if err != nil {
 		return err
 	}
+`, map[string]interface{}{"Name": name})
+}
+
+func parseOptionId(name string) string {
+	return generate(`self.[Name].Parse(ps)
 `, map[string]interface{}{"Name": name})
 }
 

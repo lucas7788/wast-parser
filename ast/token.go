@@ -38,8 +38,8 @@ func (self OptionId) ToId() Id {
 	return self.name
 }
 
-func (self *OptionId) Parse(ps *parser.ParserBuffer) error {
-	return ps.TryParse(&self.name)
+func (self *OptionId) Parse(ps *parser.ParserBuffer) {
+	_ = ps.TryParse(&self.name)
 }
 
 type Index struct {

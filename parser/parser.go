@@ -155,7 +155,7 @@ func (self *ParserBuffer) PeekKeyword() (string, error) {
 }
 
 func (self *ParserBuffer) TryKeyword() (string, error) {
-	cl :=  self.clone()
+	cl := self.clone()
 	str, err := cl.ExpectKeyword()
 	if err != nil {
 		return "", err

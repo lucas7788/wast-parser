@@ -37,7 +37,7 @@ func (self *Wast) Parse(ps *parser.ParserBuffer) error {
 				return err
 			}
 		}
-	}else {
+	} else {
 		var wat Wat
 		err := wat.Parse(ps)
 		if err != nil {
@@ -65,36 +65,37 @@ type WastDirective interface {
 	wastDirective()
 }
 
-type implWastDirective struct {}
-func (self implWastDirective)  wastDirective() {}
+type implWastDirective struct{}
+
+func (self implWastDirective) wastDirective() {}
 
 type AssertInvalidDirective struct {
 	implWastDirective
 	Module Module
-	Msg string
+	Msg    string
 }
 
 type AssertMalformedDirective struct {
 	implWastDirective
 	Module QuoteModule
-	Msg string
+	Msg    string
 }
 
 type RegisterDirective struct {
 	implWastDirective
-	Name string
+	Name   string
 	Module OptionId
 }
 
-type  AssertTrapDirective struct {
+type AssertTrapDirective struct {
 	implWastDirective
 	Exec WastExecute
-	msg string
+	msg  string
 }
 
 type AssertReturnDirective struct {
 	implWastDirective
-	Exec WastExecute
+	Exec    WastExecute
 	Results []Expression
 }
 
@@ -106,15 +107,16 @@ type AssertReturnCanonicalNanDirective struct {
 type WastExecute interface {
 	wastExecute()
 }
-type implWastExecute struct {}
+type implWastExecute struct{}
+
 func (self implWastExecute) wastExecute() {}
 
 type WastInvoke struct {
 	implWastDirective
 	implWastExecute
 	Module OptionId
-	Name string
-	Args []Expression
+	Name   string
+	Args   []Expression
 }
 
 type WastExecuteGet struct {
@@ -123,7 +125,7 @@ type WastExecuteGet struct {
 	Global string
 }
 
-func (self *WastInvoke)Parse(ps *parser.ParserBuffer ) error {
+func (self *WastInvoke) Parse(ps *parser.ParserBuffer) error {
 	err := ps.ExpectKeywordMatch("invoke")
 	if err != nil {
 		return err
@@ -136,7 +138,7 @@ func (self *WastInvoke)Parse(ps *parser.ParserBuffer ) error {
 	}
 
 	for !ps.Empty() {
-		err := ps.Parens(func (ps *parser.ParserBuffer)error {
+		err := ps.Parens(func(ps *parser.ParserBuffer) error {
 			var expr Expression
 			err := expr.Parse(ps)
 			if err != nil {
@@ -158,7 +160,8 @@ type QuoteModule interface {
 	quoteModule()
 }
 
-type implQuoteModule struct {}
+type implQuoteModule struct{}
+
 func (self implQuoteModule) quoteModule() {}
 
 type Quote struct {
@@ -175,7 +178,7 @@ func parseQuoteModule(ps *parser.ParserBuffer) (QuoteModule, error) {
 		_ = ps.ExpectKeywordMatch("quote")
 		var quote Quote
 		for !ps.Empty() {
-			str, err:= ps.ExpectString()
+			str, err := ps.ExpectString()
 			if err != nil {
 				return nil, err
 			}
@@ -191,7 +194,7 @@ func parseQuoteModule(ps *parser.ParserBuffer) (QuoteModule, error) {
 }
 
 func parseWastDirective(ps *parser.ParserBuffer) (WastDirective, error) {
-	kw , err := ps.ExpectKeyword()
+	kw, err := ps.ExpectKeyword()
 	if err != nil {
 		return nil, err
 	}
@@ -203,7 +206,7 @@ func parseWastDirective(ps *parser.ParserBuffer) (WastDirective, error) {
 		return module, err
 	case "assert_malformed":
 		var result AssertMalformedDirective
-		err = ps.Parens(func (ps *parser.ParserBuffer)error {
+		err = ps.Parens(func(ps *parser.ParserBuffer) error {
 			result.Module, err = parseQuoteModule(ps)
 			return err
 		})
@@ -244,7 +247,7 @@ func parseWastDirective(ps *parser.ParserBuffer) (WastDirective, error) {
 		return invoke, nil
 	case "assert_trap":
 		var trap AssertTrapDirective
-		err := ps.Parens(func (ps *parser.ParserBuffer)error {
+		err := ps.Parens(func(ps *parser.ParserBuffer) error {
 			trap.Exec, err = parseWastExecute(ps)
 			return err
 		})
@@ -252,7 +255,7 @@ func parseWastDirective(ps *parser.ParserBuffer) (WastDirective, error) {
 			return nil, err
 		}
 
-		trap.msg,err = ps.ExpectString()
+		trap.msg, err = ps.ExpectString()
 		if err != nil {
 			return nil, err
 		}
@@ -260,7 +263,7 @@ func parseWastDirective(ps *parser.ParserBuffer) (WastDirective, error) {
 		return trap, nil
 	case "assert_return":
 		var ret AssertReturnDirective
-		err := ps.Parens(func (ps *parser.ParserBuffer)error {
+		err := ps.Parens(func(ps *parser.ParserBuffer) error {
 			ret.Exec, err = parseWastExecute(ps)
 			return err
 		})
@@ -268,7 +271,7 @@ func parseWastDirective(ps *parser.ParserBuffer) (WastDirective, error) {
 			return nil, err
 		}
 		for !ps.Empty() {
-			err := ps.Parens(func (ps *parser.ParserBuffer)error {
+			err := ps.Parens(func(ps *parser.ParserBuffer) error {
 				var expr Expression
 				err := expr.Parse(ps)
 				if err != nil {
@@ -288,11 +291,10 @@ func parseWastDirective(ps *parser.ParserBuffer) (WastDirective, error) {
 	}
 }
 
-
 func parseWastExecute(ps *parser.ParserBuffer) (WastExecute, error) {
 	kw, err := ps.ExpectKeyword()
 	if err != nil {
-		return nil,err
+		return nil, err
 	}
 
 	switch kw {
@@ -303,7 +305,7 @@ func parseWastExecute(ps *parser.ParserBuffer) (WastExecute, error) {
 		return invoke, err
 	case "module":
 		var module Module
-		err :=  module.Parse(ps)
+		err := module.Parse(ps)
 		return module, err
 	case "get":
 		var get WastExecuteGet
@@ -318,4 +320,3 @@ func parseWastExecute(ps *parser.ParserBuffer) (WastExecute, error) {
 		return nil, errors.New("parse wast execute error")
 	}
 }
-
