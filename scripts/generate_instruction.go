@@ -248,7 +248,7 @@ func main() {
 ;;(F32Load(MemArg<4>) f32.load)
 ;;(F64Load(MemArg<8>) f64.load)
 ;;(I32Load8s(MemArg<1>) i32.load8_s)
-;;(I32Load8u(MemArg<1>) i32.load8_u)
+(I32Load8u i32.load8_u (MemArg MemArg))
 ;;(I32Load16s(MemArg<2>) i32.load16_s)
 ;;(I32Load16u(MemArg<2>) i32.load16_u)
 ;;(I64Load8s(MemArg<1>) i64.load8_s)

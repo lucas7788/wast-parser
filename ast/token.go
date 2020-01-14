@@ -2,7 +2,10 @@ package ast
 
 import (
 	"errors"
+	"fmt"
 	"github.com/ontio/wast-parser/parser"
+	"strconv"
+	"strings"
 )
 
 type Id struct {
@@ -151,4 +154,55 @@ func (self *BlockType) Parse(ps *parser.ParserBuffer) error {
 	}
 	self.Ty = ty
 	return nil
+}
+
+type MemArg struct {
+	Align  uint32
+	Offset uint32
+}
+
+func (self *MemArg) Parse(ps *parser.ParserBuffer) error {
+
+	parse_field := func(name string, ps *parser.ParserBuffer) (uint32, error) {
+		kw, err := ps.ExpectKeyword()
+		if err != nil {
+			return 0, err
+		}
+
+		if strings.HasPrefix(kw, name+"=") == false {
+			return 0, errors.New("parse MemArg error")
+		}
+
+		kw = kw[len(name)+1:]
+
+		base := 10
+		if strings.HasPrefix(kw, "0x") {
+			base = 16
+			kw = kw[2:]
+		}
+		val, err := strconv.ParseUint(kw, base, 32)
+		if err != nil {
+			return 0, err
+		}
+		return uint32(val), nil
+	}
+
+	offset, err := parse_field("offset", ps)
+	if err != nil {
+		return err
+	}
+	self.Offset = offset
+	temp, err := parse_field("align", ps)
+	if err != nil {
+		return err
+	}
+	if !isTwoPower(temp) {
+		return fmt.Errorf("alignment must be a power of two")
+	}
+	self.Align = temp
+	return nil
+}
+
+func isTwoPower(num uint32) bool {
+	return num&num-1 == 0
 }

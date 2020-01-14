@@ -371,6 +371,23 @@ func (self *TableSet) String() string {
 	return "table.set"
 }
 
+type I32Load8u struct {
+	MemArg MemArg
+}
+
+func (self *I32Load8u) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32Load8u) String() string {
+	return "i32.load8_u"
+}
+
 type MemorySize struct {
 }
 
@@ -3902,6 +3919,8 @@ func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
 		inst = &TableGet{}
 	case "table.set":
 		inst = &TableSet{}
+	case "i32.load8_u":
+		inst = &I32Load8u{}
 	case "memory.size", "current_memory":
 		inst = &MemorySize{}
 	case "memory.grow", "grow_memory":
