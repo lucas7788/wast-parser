@@ -487,12 +487,12 @@ func (self *Lexer) ReadStringToken() (string, error) {
 					return "", fmt.Errorf("expected end with }")
 				}
 			default:
-				if validHexDigit(byte(c)) {
+				if validHexDigit(byte(ecs)) {
 					c2, err := self.hexdigit()
 					if err != nil {
 						return "", err
 					}
-					result += string(to_hex(c)*16 + c2)
+					result += string(to_hex(ecs)*16 + c2)
 				} else {
 					return "", fmt.Errorf("UnexpectedEof")
 				}
@@ -506,7 +506,6 @@ func (self *Lexer) ReadStringToken() (string, error) {
 			result += string(c)
 		}
 	}
-	return result, nil
 }
 
 func (self *Lexer) hexnum() (uint32, error) {
