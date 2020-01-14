@@ -1,6 +1,10 @@
 package ast
 
-import "github.com/ontio/wast-parser/parser"
+import (
+	"fmt"
+
+	"github.com/ontio/wast-parser/parser"
+)
 
 type Block struct {
 	BlockType BlockType
@@ -4453,7 +4457,7 @@ func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
 	case "v128.andnot":
 		inst = &V128Andnot{}
 	default:
-		panic("todo")
+		panic(fmt.Sprintf("todo: implement instruction %s", kw))
 	}
 	err = inst.parseInstrBody(ps)
 	if err != nil {

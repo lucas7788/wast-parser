@@ -203,7 +203,7 @@ func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
 	switch kw {
 	[cases]
 	default:
-		panic("todo")
+		panic(fmt.Sprintf("todo: implement instruction %s", kw))
 	}
 	err = inst.parseInstrBody(ps)
 	if err != nil {
@@ -712,7 +712,11 @@ func main() {
 	goFile := generate(`
 package ast
 
-import "github.com/ontio/wast-parser/parser"
+import (
+	"fmt"
+
+	"github.com/ontio/wast-parser/parser"
+)
 
 [Instrs]
 [parseInstr]

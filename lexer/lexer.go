@@ -154,7 +154,9 @@ func (self implFloat) Type() TokenType {
 
 type Nan struct {
 	implFloat
-	Neg bool
+	SpecBit bool //whether use val to encode for this float
+	Val     uint64
+	Neg     bool
 }
 
 type Inf struct {
@@ -177,14 +179,6 @@ func number(num string) Token {
 	} else if strings.HasPrefix(num, "-") {
 		negative = true
 		num = num[1:]
-	}
-
-	if num == "inf" {
-		return Inf{Neg: negative}
-	} else if num == "nan" {
-		return Nan{Neg: negative}
-	} else if strings.HasPrefix(num, "nan:0x") {
-		panic("unimplemented")
 	}
 
 	skipUnderscore := func(num string, negative bool, valid func(b byte) bool) (string, string) {
@@ -222,6 +216,23 @@ func number(num string) Token {
 		}
 
 		return num[last:], string(result)
+	}
+
+	if num == "inf" {
+		return Inf{Neg: negative}
+	} else if num == "nan" {
+		return Nan{Neg: negative}
+	} else if strings.HasPrefix(num, "nan:0x") {
+		left, val := skipUnderscore(num[6:], false, validHexDigit)
+		if len(left) != 0 {
+			return nil
+		}
+		val = strings.ToLower(val)
+		n, err := strconv.ParseUint(val, 16, 64)
+		if err != nil {
+			return nil
+		}
+		return Nan{Neg: negative, Val: n, SpecBit: true}
 	}
 
 	hex := false
