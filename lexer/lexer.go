@@ -2,7 +2,6 @@ package lexer
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"io"
 	"strconv"
@@ -373,7 +372,26 @@ func (self *Lexer) SkipComment() bool {
 			checked = false
 			skipped = true
 		}
-		//todo: multi comment
+		if self.SkipPrefix("(;") {
+			level := 1
+			finished := false
+			self.ReadWhile(func(b byte) bool {
+				if finished {
+					return false
+				}
+				if b == '(' && self.SkipPrefix(";") {
+					level += 1
+				}
+				if b == ';' && self.SkipPrefix(")") {
+					level -= 1
+					if level == 0 {
+						finished = true
+					}
+				}
+				return true
+			})
+			return false
+		}
 	}
 
 	return skipped
@@ -434,18 +452,113 @@ func (self *Lexer) ReadToken() (Token, error) {
 }
 
 func (self *Lexer) ReadStringToken() (string, error) {
-	//todo: handle escape
-	str := self.ReadWhile(func(b byte) bool {
-		return b != "\""[0]
-	})
-
-	if !self.SkipPrefix("\"") {
-		return "", errors.New("read string token error")
+	var result string
+	for {
+		c, err := self.ReadChar()
+		if err != nil {
+			return "", err
+		}
+		switch c {
+		case '\\':
+			ecs, err := self.ReadChar()
+			if err != nil {
+				return "", err
+			}
+			switch ecs {
+			case '"':
+				result += string('"')
+			case '\'':
+				result += string('\'')
+			case 't':
+				result += string('\t')
+			case 'n':
+				result += string('\n')
+			case 'r':
+				result += string('\r')
+			case '\\':
+				result += string('\\')
+			case 'u':
+				if !self.SkipPrefix("{") {
+					return "", fmt.Errorf("expected start with {")
+				}
+				n, err := self.hexnum()
+				if err != nil {
+					return "", err
+				}
+				result += string(n)
+				if self.SkipPrefix("}") {
+					return "", fmt.Errorf("expected end with }")
+				}
+			default:
+				if validHexDigit(byte(c)) {
+					c2, err := self.hexdigit()
+					if err != nil {
+						return "", err
+					}
+					result += string(to_hex(c)*16 + c2)
+				} else {
+					return "", fmt.Errorf("UnexpectedEof")
+				}
+			}
+		case '"':
+			return result, nil
+		default:
+			if c < 0x20 || c == 0x7f {
+				return "", fmt.Errorf("invalid string element %v", c)
+			}
+			result += string(c)
+		}
 	}
-
-	return str, nil
+	return result, nil
 }
 
+func (self *Lexer) hexnum() (uint32, error) {
+	n, err := self.hexdigit()
+	if err != nil {
+		return 0, err
+	}
+	lastUnderscore := false
+	for {
+		c, err := self.ReadChar()
+		if err != nil {
+			return 0, err
+		}
+		if c == '_' {
+			lastUnderscore = true
+			continue
+		}
+		if !validHexDigit(byte(c)) {
+			break
+		}
+		lastUnderscore = false
+		n = n*16 + to_hex(c)
+	}
+	if lastUnderscore {
+		return 0, fmt.Errorf("LoneUnderscore")
+	}
+	return uint32(n), nil
+}
+
+func (self *Lexer) hexdigit() (byte, error) {
+	ch, err := self.ReadChar()
+	if err != nil {
+		return 0, err
+	}
+	if validHexDigit(byte(ch)) {
+		return to_hex(ch), nil
+	}
+	return 0, fmt.Errorf("InvalidHexDigit")
+}
+
+func to_hex(c rune) byte {
+	if 'a' <= c && c <= 'f' {
+		return byte(c) - 'a' + 10
+	} else if 'A' <= c && c <= 'F' {
+		return byte(c) - 'A' + 10
+	} else {
+		return byte(c) - '0'
+	}
+}
 func isIdChar(b byte) bool {
 	if b >= '0' && b <= '9' {
 		return true

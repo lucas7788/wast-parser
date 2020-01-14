@@ -2,6 +2,57 @@ package ast
 
 import "github.com/ontio/wast-parser/parser"
 
+type Block struct {
+	BlockType BlockType
+}
+
+func (self *Block) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.BlockType.Parse(ps)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *Block) String() string {
+	return "block"
+}
+
+type If struct {
+	BlockType BlockType
+}
+
+func (self *If) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.BlockType.Parse(ps)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *If) String() string {
+	return "if"
+}
+
+type Else struct {
+	Id OptionId
+}
+
+func (self *Else) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.Id.Parse(ps)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *Else) String() string {
+	return "else"
+}
+
 type Unreachable struct {
 }
 
@@ -3790,6 +3841,12 @@ func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
 		return nil, err
 	}
 	switch kw {
+	case "block":
+		inst = &Block{}
+	case "if":
+		inst = &If{}
+	case "else":
+		inst = &Else{}
 	case "unreachable":
 		inst = &Unreachable{}
 	case "nop":
