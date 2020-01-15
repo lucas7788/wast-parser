@@ -243,29 +243,29 @@ func main() {
 (TableGet table.get (Index Index))
 (TableSet table.set (Index Index))
 
-;;(I32Load(MemArg<4>) i32.load)
-;;(I64Load(MemArg<8>) i64.load)
-;;(F32Load(MemArg<4>) f32.load)
-;;(F64Load(MemArg<8>) f64.load)
-;;(I32Load8s(MemArg<1>) i32.load8_s)
+(I32Load i32.load(MemArg MemArg)) ;;4
+(I64Load i64.load (MemArg MemArg)) ;;8
+(F32Load f32.load(MemArg MemArg));;4
+(F64Load f64.load(MemArg MemArg));;8
+(I32Load8s i32.load8_s (MemArg MemArg))
 (I32Load8u i32.load8_u (MemArg MemArg))
-;;(I32Load16s(MemArg<2>) i32.load16_s)
-;;(I32Load16u(MemArg<2>) i32.load16_u)
-;;(I64Load8s(MemArg<1>) i64.load8_s)
-;;(I64Load8u(MemArg<1>) i64.load8_u)
-;;(I64Load16s(MemArg<2>) i64.load16_s)
-;;(I64Load16u(MemArg<2>) i64.load16_u)
-;;(I64Load32s(MemArg<4>) i64.load32_s)
-;;(I64Load32u(MemArg<4>) i64.load32_u)
-;;(I32Store(MemArg<4>) i32.store)
-;;(I64Store(MemArg<8>) i64.store)
-;;(F32Store(MemArg<4>) f32.store)
-;;(F64Store(MemArg<8>) f64.store)
-;;(I32Store8(MemArg<1>) i32.store8)
-;;(I32Store16(MemArg<2>) i32.store16)
-;;(I64Store8(MemArg<1>) i64.store8)
-;;(I64Store16(MemArg<2>) i64.store16)
-;;(I64Store32(MemArg<4>) i64.store32)
+(I32Load16s i32.load16_s (MemArg MemArg))
+(I32Load16u i32.load16_u (MemArg MemArg))
+(I64Load8s i64.load8_s(MemArg MemArg)) ;;1
+(I64Load8u i64.load8_u(MemArg MemArg));;1
+(I64Load16s i64.load16_s (MemArg MemArg)) ;;2
+(I64Load16u i64.load16_u (MemArg MemArg));;2
+(I64Load32s i64.load32_s(MemArg MemArg));;4
+(I64Load32u i64.load32_u(MemArg MemArg));;4
+(I32Store i32.store (MemArg MemArg));;4
+(I64Store  i64.store (MemArg MemArg));;8
+(F32Store  f32.store (MemArg MemArg));;4
+(F64Store f64.store(MemArg MemArg));;8
+(I32Store8 i32.store8(MemArg MemArg));;1
+(I32Store16 i32.store16(MemArg MemArg));;2
+(I64Store8 i64.store8(MemArg MemArg));;1
+(I64Store16 i64.store16(MemArg MemArg));;2
+(I64Store32 i64.store32(MemArg MemArg));;4
 
 ;; Lots of bulk memory proposal here as well
 (MemorySize (memory.size current_memory))
