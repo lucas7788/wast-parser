@@ -388,12 +388,97 @@ func (self *TableSet) String() string {
 	return "table.set"
 }
 
+type I32Load struct {
+	MemArg MemArg
+}
+
+func (self *I32Load) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32Load) String() string {
+	return "i32.load"
+}
+
+type I64Load struct {
+	MemArg MemArg
+}
+
+func (self *I64Load) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 8)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64Load) String() string {
+	return "i64.load"
+}
+
+type F32Load struct {
+	MemArg MemArg
+}
+
+func (self *F32Load) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *F32Load) String() string {
+	return "f32.load"
+}
+
+type F64Load struct {
+	MemArg MemArg
+}
+
+func (self *F64Load) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 8)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *F64Load) String() string {
+	return "f64.load"
+}
+
+type I32Load8s struct {
+	MemArg MemArg
+}
+
+func (self *I32Load8s) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32Load8s) String() string {
+	return "i32.load8_s"
+}
+
 type I32Load8u struct {
 	MemArg MemArg
 }
 
 func (self *I32Load8u) parseInstrBody(ps *parser.ParserBuffer) error {
-	err := self.MemArg.Parse(ps)
+	err := self.MemArg.Parse(ps, 1)
 	if err != nil {
 		return err
 	}
@@ -403,6 +488,295 @@ func (self *I32Load8u) parseInstrBody(ps *parser.ParserBuffer) error {
 
 func (self *I32Load8u) String() string {
 	return "i32.load8_u"
+}
+
+type I32Load16s struct {
+	MemArg MemArg
+}
+
+func (self *I32Load16s) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32Load16s) String() string {
+	return "i32.load16_s"
+}
+
+type I32Load16u struct {
+	MemArg MemArg
+}
+
+func (self *I32Load16u) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32Load16u) String() string {
+	return "i32.load16_u"
+}
+
+type I64Load8s struct {
+	MemArg MemArg
+}
+
+func (self *I64Load8s) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64Load8s) String() string {
+	return "i64.load8_s"
+}
+
+type I64Load8u struct {
+	MemArg MemArg
+}
+
+func (self *I64Load8u) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64Load8u) String() string {
+	return "i64.load8_u"
+}
+
+type I64Load16s struct {
+	MemArg MemArg
+}
+
+func (self *I64Load16s) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64Load16s) String() string {
+	return "i64.load16_s"
+}
+
+type I64Load16u struct {
+	MemArg MemArg
+}
+
+func (self *I64Load16u) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64Load16u) String() string {
+	return "i64.load16_u"
+}
+
+type I64Load32s struct {
+	MemArg MemArg
+}
+
+func (self *I64Load32s) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64Load32s) String() string {
+	return "i64.load32_s"
+}
+
+type I64Load32u struct {
+	MemArg MemArg
+}
+
+func (self *I64Load32u) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64Load32u) String() string {
+	return "i64.load32_u"
+}
+
+type I32Store struct {
+	MemArg MemArg
+}
+
+func (self *I32Store) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32Store) String() string {
+	return "i32.store"
+}
+
+type I64Store struct {
+	MemArg MemArg
+}
+
+func (self *I64Store) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 8)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64Store) String() string {
+	return "i64.store"
+}
+
+type F32Store struct {
+	MemArg MemArg
+}
+
+func (self *F32Store) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *F32Store) String() string {
+	return "f32.store"
+}
+
+type F64Store struct {
+	MemArg MemArg
+}
+
+func (self *F64Store) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 8)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *F64Store) String() string {
+	return "f64.store"
+}
+
+type I32Store8 struct {
+	MemArg MemArg
+}
+
+func (self *I32Store8) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32Store8) String() string {
+	return "i32.store8"
+}
+
+type I32Store16 struct {
+	MemArg MemArg
+}
+
+func (self *I32Store16) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I32Store16) String() string {
+	return "i32.store16"
+}
+
+type I64Store8 struct {
+	MemArg MemArg
+}
+
+func (self *I64Store8) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 1)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64Store8) String() string {
+	return "i64.store8"
+}
+
+type I64Store16 struct {
+	MemArg MemArg
+}
+
+func (self *I64Store16) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 2)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64Store16) String() string {
+	return "i64.store16"
+}
+
+type I64Store32 struct {
+	MemArg MemArg
+}
+
+func (self *I64Store32) parseInstrBody(ps *parser.ParserBuffer) error {
+	err := self.MemArg.Parse(ps, 4)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (self *I64Store32) String() string {
+	return "i64.store32"
 }
 
 type MemorySize struct {
@@ -3938,8 +4312,52 @@ func parseInstr(ps *parser.ParserBuffer) (Instruction, error) {
 		inst = &TableGet{}
 	case "table.set":
 		inst = &TableSet{}
+	case "i32.load":
+		inst = &I32Load{}
+	case "i64.load":
+		inst = &I64Load{}
+	case "f32.load":
+		inst = &F32Load{}
+	case "f64.load":
+		inst = &F64Load{}
+	case "i32.load8_s":
+		inst = &I32Load8s{}
 	case "i32.load8_u":
 		inst = &I32Load8u{}
+	case "i32.load16_s":
+		inst = &I32Load16s{}
+	case "i32.load16_u":
+		inst = &I32Load16u{}
+	case "i64.load8_s":
+		inst = &I64Load8s{}
+	case "i64.load8_u":
+		inst = &I64Load8u{}
+	case "i64.load16_s":
+		inst = &I64Load16s{}
+	case "i64.load16_u":
+		inst = &I64Load16u{}
+	case "i64.load32_s":
+		inst = &I64Load32s{}
+	case "i64.load32_u":
+		inst = &I64Load32u{}
+	case "i32.store":
+		inst = &I32Store{}
+	case "i64.store":
+		inst = &I64Store{}
+	case "f32.store":
+		inst = &F32Store{}
+	case "f64.store":
+		inst = &F64Store{}
+	case "i32.store8":
+		inst = &I32Store8{}
+	case "i32.store16":
+		inst = &I32Store16{}
+	case "i64.store8":
+		inst = &I64Store8{}
+	case "i64.store16":
+		inst = &I64Store16{}
+	case "i64.store32":
+		inst = &I64Store32{}
 	case "memory.size", "current_memory":
 		inst = &MemorySize{}
 	case "memory.grow", "grow_memory":

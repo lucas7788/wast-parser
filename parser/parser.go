@@ -103,6 +103,20 @@ func (self *ParserBuffer) ExpectKeyword() (string, error) {
 	return kw, nil
 }
 
+func (self *ParserBuffer) Float() (val lexer.FloatVal, err error) {
+	if token := self.ReadToken(); token != nil {
+		if t, ok := token.(lexer.FloatVal); ok {
+			return t, nil
+		}
+	}
+
+	return val, errors.New("expect integer")
+}
+
+func (self *ParserBuffer) Curr() uint32 {
+	return uint32(self.curr)
+}
+
 func (self *ParserBuffer) ExpectInteger() (lexer.Integer, error) {
 	cursor := self.Cursor()
 	val, err := cursor.Integer()
@@ -319,6 +333,16 @@ func (self *Cursor) Id() string {
 func (self *Cursor) Integer() (val lexer.Integer, err error) {
 	if token := self.readToken(); token != nil {
 		if t, ok := token.(lexer.Integer); ok {
+			return t, nil
+		}
+	}
+
+	return val, errors.New("expect integer")
+}
+
+func (self *Cursor) Float() (val lexer.FloatVal, err error) {
+	if token := self.readToken(); token != nil {
+		if t, ok := token.(lexer.FloatVal); ok {
 			return t, nil
 		}
 	}

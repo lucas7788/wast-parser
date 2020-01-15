@@ -124,15 +124,34 @@ type Float32 struct {
 }
 
 func (self *Float32) Parse(ps *parser.ParserBuffer) error {
-	panic("todo")
+	res, err := ps.Float()
+	if err != nil {
+		return err
+	}
+	f, err := res.ToFloat32()
+	if err != nil {
+		return err
+	}
+	self.bits = f
+	return nil
 }
 
 type Float64 struct {
 	bits uint64
+	val  float64
 }
 
 func (self *Float64) Parse(ps *parser.ParserBuffer) error {
-	panic("todo")
+	res, err := ps.Float()
+	if err != nil {
+		return err
+	}
+	f, err := res.ToFloat()
+	if err != nil {
+		return err
+	}
+	self.val = f
+	return nil
 }
 
 type BlockType struct {
@@ -161,20 +180,22 @@ type MemArg struct {
 	Offset uint32
 }
 
-func (self *MemArg) Parse(ps *parser.ParserBuffer) error {
+func (self *MemArg) Parse(ps *parser.ParserBuffer, defaultAlign uint32) error {
 
 	parse_field := func(name string, ps *parser.ParserBuffer) (uint32, error) {
-		kw, err := ps.ExpectKeyword()
+		kw, err := ps.TryKeyword()
 		if err != nil {
 			return 0, err
 		}
-
-		if strings.HasPrefix(kw, name+"=") == false {
-			return 0, errors.New("parse MemArg error")
+		fmt.Printf("kw: %s, name: %s \n", kw, name)
+		if strings.HasPrefix(kw, name) == false {
+			return ps.Curr(), nil
 		}
-
-		kw = kw[len(name)+1:]
-
+		kw = kw[len(name):]
+		if strings.HasPrefix(kw, "=") == false {
+			return ps.Curr(), nil
+		}
+		kw = kw[1:]
 		base := 10
 		if strings.HasPrefix(kw, "0x") {
 			base = 16
@@ -194,15 +215,17 @@ func (self *MemArg) Parse(ps *parser.ParserBuffer) error {
 	self.Offset = offset
 	temp, err := parse_field("align", ps)
 	if err != nil {
-		return err
+		self.Align = defaultAlign
+		return nil
 	}
 	if !isTwoPower(temp) {
-		return fmt.Errorf("alignment must be a power of two")
+		fmt.Println("temp:", temp)
+		return fmt.Errorf("alignment must be a power of two, %d", temp)
 	}
 	self.Align = temp
 	return nil
 }
 
 func isTwoPower(num uint32) bool {
-	return num&num-1 == 0
+	return num&(num-1) == 0
 }
