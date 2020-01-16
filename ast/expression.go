@@ -90,6 +90,7 @@ func (self *instructions) parseOneInstr(ps *parser.ParserBuffer) error {
 			}
 			if matchKeyword(ps.Peek2Token(), "then") {
 				err = ps.Parens(func(ps *parser.ParserBuffer) error {
+					_ = ps.ExpectKeywordMatch("then")
 					return self.parseFoldedInstrs(ps)
 				})
 				if err != nil {
@@ -148,10 +149,10 @@ func (self *BrTableIndices) Parse(ps *parser.ParserBuffer) error {
 	}
 	self.Labels = append(self.Labels, index)
 	for !ps.Empty() {
+
 		var index Index
-		err := index.Parse(ps)
-		if err != nil {
-			return err
+		if ps.TryParse(&index) != nil {
+			break
 		}
 
 		self.Labels = append(self.Labels, index)
